@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Darkline Desmos — Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f8f6;
+    --surface: #ffffff;
+    --border: #e4e4e0;
+    --border-strong: #c8c8c4;
+    --text: #1a1a18;
+    --text-mid: #5a5a56;
+    --text-light: #9a9a96;
+    --green: #1a7a3c;
+    --green-bg: #e8f5ed;
+    --green-border: #a8d8b8;
+    --yellow: #8a6a00;
+    --yellow-bg: #fef9e6;
+    --yellow-border: #e8d890;
+    --red: #a01820;
+    --red-bg: #fde8e8;
+    --red-border: #e8a8a8;
+    --accent: #1a1a18;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  /* NAV */
+  .nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 56px;
+  }
+  .nav-logo {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .nav-logo span { color: var(--text-light); }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    background: none;
+    color: var(--text-mid);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-tab.active {
+    background: var(--text);
+    color: #fff;
+    border-color: var(--text);
+  }
+  .nav-tab:not(.active):hover { background: var(--bg); border-color: var(--border); color: var(--text); }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* LAYOUT */
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  /* SECTION HEADERS */
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 12px;
+    margin-top: 28px;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  /* CARDS GRID */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .card-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-light);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .card-value {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+  }
+  .card-sub {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 4px;
+  }
+  .card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-top: 6px;
+  }
+  .badge-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .badge-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+  .badge-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+
+  /* WEEK PROGRESS */
+  .week-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .week-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .week-label { font-size: 13px; font-weight: 600; }
+  .week-percent { font-family: var(--mono); font-size: 22px; font-weight: 500; }
+  .progress-bar-bg {
+    height: 8px;
+    background: var(--bg);
+    border-radius: 100px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.5s ease;
+  }
+  .fill-green { background: var(--green); }
+  .fill-yellow { background: #d4a000; }
+  .fill-red { background: #c02030; }
+
+  .week-rows { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .week-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .week-row-label { color: var(--text-mid); }
+  .week-row-val { font-family: var(--mono); font-weight: 500; }
+
+  /* CHART CARD */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .chart-card canvas { width: 100% !important; }
+
+  /* NICHO RANKING */
+  .nicho-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .nicho-row { margin-bottom: 14px; }
+  .nicho-row:last-child { margin-bottom: 0; }
+  .nicho-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+  .nicho-name { font-size: 13px; font-weight: 500; }
+  .nicho-ctr { font-family: var(--mono); font-size: 14px; font-weight: 500; }
+  .nicho-bar-bg { height: 6px; background: var(--bg); border-radius: 100px; border: 1px solid var(--border); overflow: hidden; }
+  .nicho-bar-fill { height: 100%; border-radius: 100px; background: var(--text); }
+  .nicho-elim { font-size: 11px; color: var(--red); margin-top: 3px; font-weight: 500; }
+
+  /* CALENDAR */
+  .cal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .cal-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .cal-day { text-align: center; }
+  .cal-day-label { font-size: 10px; color: var(--text-light); margin-bottom: 5px; font-weight: 500; text-transform: uppercase; }
+  .cal-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+  .dot-green { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+  .dot-yellow { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow-border); }
+  .dot-grey { background: var(--bg); color: var(--text-light); border-color: var(--border); }
+  .dot-today { box-shadow: 0 0 0 2px var(--text); }
+
+  /* SEMANA INFO */
+  .week-info-bar {
+    background: var(--text);
+    color: #fff;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+  .week-info-bar strong { font-family: var(--mono); }
+
+  /* EXPORT BTN */
+  .export-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: all 0.15s;
+    margin-top: 4px;
+  }
+  .export-btn:hover { background: var(--bg); }
+
+  /* FORM PAGE */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .form-input, .form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 7px;
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--text);
+    background: var(--surface);
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .nicho-fields { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .nicho-field-label { font-size: 12px; color: var(--text-mid); margin-bottom: 4px; font-weight: 500; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: opacity 0.15s;
+    margin-top: 4px;
+  }
+  .submit-btn:hover { opacity: 0.85; }
+  .submit-btn:active { opacity: 0.7; }
+
+  .success-msg {
+    display: none;
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    color: var(--green);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  /* HISTORY LIST */
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .history-date { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .history-stats { font-size: 12px; color: var(--text-mid); margin-top: 3px; }
+  .history-revenue { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--green); }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  @media (max-width: 400px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .card-value { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">Darkline<span> /</span> Desmos</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('painel')">Painel</button>
+      <button class="nav-tab" onclick="showPage('registrar')">Registrar</button>
+    </div>
+  </div>
+</nav>
+
+<!-- PAINEL -->
+<div id="page-painel" class="page active">
+  <div class="container">
+
+    <div class="week-info-bar" id="weekInfoBar">
+      <span id="weekInfoLabel">Semana 1</span>
+      <strong id="weekInfoMeta">Meta: 2.000 views/dia</strong>
+    </div>
+
+    <p class="section-title" style="margin-top:20px">Hoje</p>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-label">Views</div>
+        <div class="card-value" id="card-views">—</div>
+        <div id="badge-views"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">CTR Geral</div>
+        <div class="card-value" id="card-ctr">—</div>
+        <div class="card-sub">cliques ÷ views</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Receita</div>
+        <div class="card-value" id="card-receita">—</div>
+        <div id="badge-receita"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Vídeos / sem.</div>
+        <div class="card-value" id="card-videos">—</div>
+        <div class="card-sub">esta semana</div>
+      </div>
+    </div>
+
+    <p class="section-title">Progresso da Semana</p>
+    <div class="week-card">
+      <div class="week-header">
+        <span class="week-label" id="progressLabel">Views acumulados</span>
+        <span class="week-percent" id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill fill-green" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="week-rows">
+        <div class="week-row">
+          <span class="week-row-label">Views acum.</span>
+          <span class="week-row-val" id="wr-views">—</span>
+        </div>
+        <div class="week-row">
+          <span class="week-row-label">Meta semanal</span>
+          <span class="week-row-val" id="wr-meta">—</span>
+        </div>
+        <div class="week-row">
+          <span class="week-row-label">Receita acum.</span>
+          <span class="week-row-val" id="wr-receita">—</span>
+        </div>
+        <div class="week-row">
+          <span class="week-row-label">Dias registrados</span>
+          <span class="week-row-val" id="wr-dias">—</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-title">Últimos 7 dias</p>
+    <div class="chart-card">
+      <canvas id="chartLine" height="180"></canvas>
+    </div>
+
+    <p class="section-title">Ranking por CTR — Nichos</p>
+    <div class="nicho-card" id="nichoRanking"></div>
+
+    <p class="section-title">Calendário da Semana</p>
+    <div class="cal-card">
+      <div class="cal-week" id="calWeek"></div>
+    </div>
+
+    <p class="section-title">Histórico de Registros</p>
+    <div id="historyList"></div>
+
+    <div class="divider"></div>
+    <button class="export-btn" onclick="exportCSV()">↓ Exportar semana atual em CSV</button>
+
+  </div>
+</div>
+
+<!-- REGISTRAR -->
+<div id="page-registrar" class="page">
+  <div class="container">
+
+    <p class="section-title">Novo registro diário</p>
+    <div class="form-card">
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input class="form-input" type="date" id="f-data">
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Views</label>
+          <input class="form-input" type="number" id="f-views" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cliques na bio</label>
+          <input class="form-input" type="number" id="f-cliques" placeholder="0">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Receita (R$)</label>
+          <input class="form-input" type="number" id="f-receita" placeholder="0.00" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vídeos postados</label>
+          <input class="form-input" type="number" id="f-videos" placeholder="0">
+        </div>
+      </div>
+    </div>
+
+    <p class="section-title" style="margin-top:20px">CTR por nicho (%)</p>
+    <div class="form-card">
+      <div class="nicho-fields">
+        <div class="form-group">
+          <div class="nicho-field-label">🏠 Casa & Organização</div>
+          <input class="form-input" type="number" id="f-casa" placeholder="0.0" step="0.1" min="0" max="100">
+        </div>
+        <div class="form-group">
+          <div class="nicho-field-label">💄 Beleza & Skincare</div>
+          <input class="form-input" type="number" id="f-beleza" placeholder="0.0" step="0.1" min="0" max="100">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <div class="nicho-field-label">⚡ Utilidades Virais</div>
+          <input class="form-input" type="number" id="f-util" placeholder="0.0" step="0.1" min="0" max="100">
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="submit-btn" onclick="saveRecord()">Salvar registro</button>
+      <div class="success-msg" id="successMsg">✓ Registro salvo com sucesso!</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// =================== DATA ===================
+const WEEKS = [
+  { n: 1, viewsMeta: 2000,  receitaMin: 5,   receitaMax: 15  },
+  { n: 2, viewsMeta: 8000,  receitaMin: 20,  receitaMax: 50  },
+  { n: 3, viewsMeta: 20000, receitaMin: 50,  receitaMax: 100 },
+  { n: 4, viewsMeta: 40000, receitaMin: 100, receitaMax: 150 },
+];
+
+const NICHOS = ['Casa & Organização', 'Beleza & Skincare', 'Utilidades Virais'];
+const NICHO_ICONS = ['🏠', '💄', '⚡'];
+
+function getData() {
+  const raw = localStorage.getItem('darkline_records');
+  return raw ? JSON.parse(raw) : [];
+}
+function saveData(arr) {
+  localStorage.setItem('darkline_records', JSON.stringify(arr));
+}
+
+// SEED DEMO DATA if empty
+function seedDemo() {
+  if (getData().length > 0) return;
+  const today = new Date();
+  const records = [];
+  for (let i = 2; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0,10);
+    records.push({
+      date: dateStr,
+      views: [1540, 1870, 2210][2-i],
+      cliques: [62, 82, 99][2-i],
+      receita: [7.50, 11.20, 14.80][2-i],
+      videos: [3, 2, 4][2-i],
+      ctr_casa: [4.2, 4.5, 4.8][2-i],
+      ctr_beleza: [3.8, 3.6, 3.9][2-i],
+      ctr_util: [5.1, 5.4, 5.7][2-i],
+    });
+  }
+  saveData(records);
+}
+
+function getCurrentWeek(records) {
+  // Determina semana pela data mais recente ou hoje
+  // Semana 1 = dias 1-7, 2 = 8-14, etc. contando a partir do 1º registro
+  if (records.length === 0) return 0;
+  const sorted = [...records].sort((a,b) => a.date.localeCompare(b.date));
+  const first = new Date(sorted[0].date);
+  const today = new Date();
+  const diff = Math.floor((today - first) / (1000*60*60*24));
+  return Math.min(Math.floor(diff / 7), 3);
+}
+
+function getThisWeekRecords(records, weekIdx) {
+  if (records.length === 0) return [];
+  const sorted = [...records].sort((a,b) => a.date.localeCompare(b.date));
+  const first = new Date(sorted[0].date);
+  return records.filter(r => {
+    const d = new Date(r.date);
+    const diff = Math.floor((d - first) / (1000*60*60*24));
+    return Math.floor(diff / 7) === weekIdx;
+  });
+}
+
+function getLast7(records) {
+  const sorted = [...records].sort((a,b) => a.date.localeCompare(b.date));
+  return sorted.slice(-7);
+}
+
+function getStatus(value, min, max) {
+  if (value >= max) return 'green';
+  if (value >= min) return 'yellow';
+  return 'red';
+}
+
+// =================== RENDER ===================
+let lineChart = null;
+
+function render() {
+  const records = getData();
+  const weekIdx = getCurrentWeek(records);
+  const weekCfg = WEEKS[weekIdx];
+  const weekRecords = getThisWeekRecords(records, weekIdx);
+  const last7 = getLast7(records);
+  const lastRec = last7.length > 0 ? last7[last7.length-1] : null;
+
+  // Week info bar
+  document.getElementById('weekInfoLabel').textContent = `Semana ${weekIdx+1}`;
+  document.getElementById('weekInfoMeta').textContent = `Meta: ${weekCfg.viewsMeta.toLocaleString('pt-BR')} views/dia`;
+
+  // Cards
+  if (lastRec) {
+    document.getElementById('card-views').textContent = lastRec.views.toLocaleString('pt-BR');
+    const ctrGeral = lastRec.views > 0 ? ((lastRec.cliques / lastRec.views)*100).toFixed(2) : '0.00';
+    document.getElementById('card-ctr').textContent = ctrGeral + '%';
+    document.getElementById('card-receita').textContent = 'R$' + lastRec.receita.toFixed(2).replace('.',',');
+    const vidsSemana = weekRecords.reduce((s,r)=>s+r.videos,0);
+    document.getElementById('card-videos').textContent = vidsSemana;
+
+    // badges
+    const viewsStatus = getStatus(lastRec.views, weekCfg.viewsMeta*0.7, weekCfg.viewsMeta);
+    document.getElementById('badge-views').innerHTML = badgeHTML(viewsStatus, lastRec.views >= weekCfg.viewsMeta ? '↑ Acima da meta' : lastRec.views >= weekCfg.viewsMeta*0.7 ? '~ Dentro' : '↓ Abaixo');
+    const recStatus = getStatus(lastRec.receita, weekCfg.receitaMin, weekCfg.receitaMax);
+    document.getElementById('badge-receita').innerHTML = badgeHTML(recStatus, lastRec.receita >= weekCfg.receitaMax ? '↑ Acima' : lastRec.receita >= weekCfg.receitaMin ? '~ Dentro' : '↓ Abaixo');
+  } else {
+    ['card-views','card-ctr','card-receita','card-videos'].forEach(id=>{ document.getElementById(id).textContent='—'; });
+  }
+
+  // Progress
+  const totalViews = weekRecords.reduce((s,r)=>s+r.views,0);
+  const metaSem = weekCfg.viewsMeta * 7;
+  const pct = Math.min(Math.round((totalViews/metaSem)*100), 100);
+  const totalRec = weekRecords.reduce((s,r)=>s+r.receita,0);
+  document.getElementById('progressPercent').textContent = pct + '%';
+  document.getElementById('wr-views').textContent = totalViews.toLocaleString('pt-BR');
+  document.getElementById('wr-meta').textContent = metaSem.toLocaleString('pt-BR');
+  document.getElementById('wr-receita').textContent = 'R$' + totalRec.toFixed(2).replace('.',',');
+  document.getElementById('wr-dias').textContent = weekRecords.length + ' / 7';
+  const fill = document.getElementById('progressFill');
+  fill.style.width = pct + '%';
+  fill.className = 'progress-bar-fill ' + (pct >= 100 ? 'fill-green' : pct >= 60 ? 'fill-yellow' : 'fill-red');
+
+  // Chart
+  const labels = last7.map(r => {
+    const d = new Date(r.date);
+    return d.toLocaleDateString('pt-BR',{weekday:'short'});
+  });
+  const viewsData = last7.map(r => r.views);
+  const receitaData = last7.map(r => r.receita);
+
+  if (lineChart) lineChart.destroy();
+  const ctx = document.getElementById('chartLine').getContext('2d');
+  lineChart = new Chart(ctx, {
+    data: {
+      labels,
+      datasets: [
+        {
+          type: 'line',
+          label: 'Views',
+          data: viewsData,
+          borderColor: '#1a1a18',
+          backgroundColor: 'rgba(26,26,24,0.06)',
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#1a1a18',
+          tension: 0.3,
+          fill: true,
+          yAxisID: 'y',
+        },
+        {
+          type: 'line',
+          label: 'Receita (R$)',
+          data: receitaData,
+          borderColor: '#1a7a3c',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#1a7a3c',
+          tension: 0.3,
+          yAxisID: 'y1',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: { font: { family: "'DM Sans'", size: 11 }, boxWidth: 12, usePointStyle: true }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: "'DM Mono'", size: 10 } } },
+        y: {
+          position: 'left',
+          grid: { color: '#e4e4e0' },
+          ticks: { font: { family: "'DM Mono'", size: 10 }, maxTicksLimit: 5 }
+        },
+        y1: {
+          position: 'right',
+          grid: { drawOnChartArea: false },
+          ticks: { font: { family: "'DM Mono'", size: 10 }, maxTicksLimit: 5,
+            callback: v => 'R$'+v.toFixed(0) }
+        }
+      }
+    }
+  });
+
+  // Nichos ranking
+  const nichoAvgs = NICHOS.map((n,i) => {
+    const key = ['ctr_casa','ctr_beleza','ctr_util'][i];
+    const vals = records.filter(r => r[key] != null).map(r => r[key]);
+    const avg = vals.length > 0 ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
+    return { name: n, icon: NICHO_ICONS[i], avg };
+  });
+  const sorted = [...nichoAvgs].sort((a,b)=>b.avg-a.avg);
+  const maxCtr = Math.max(...sorted.map(n=>n.avg), 1);
+  const minCtr = sorted[sorted.length-1];
+  const totalDays = records.length;
+
+  let nichoHTML = '';
+  sorted.forEach((n, idx) => {
+    const barPct = (n.avg / maxCtr * 100).toFixed(1);
+    const isElim = totalDays >= 21 && n.name === minCtr.name;
+    nichoHTML += `
+      <div class="nicho-row">
+        <div class="nicho-top">
+          <span class="nicho-name">${n.icon} ${n.name}</span>
+          <span class="nicho-ctr">${n.avg.toFixed(2)}%</span>
+        </div>
+        <div class="nicho-bar-bg">
+          <div class="nicho-bar-fill" style="width:${barPct}%;${isElim?'background:#c02030':''}"></div>
+        </div>
+        ${isElim ? '<div class="nicho-elim">⚠ Eliminado no dia 21</div>' : ''}
+      </div>`;
+  });
+  document.getElementById('nichoRanking').innerHTML = nichoHTML;
+
+  // Calendar
+  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const today = new Date();
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay());
+  const recordDates = new Set(records.map(r=>r.date));
+
+  let calHTML = '';
+  for (let i=0; i<7; i++) {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    const dateStr = d.toISOString().slice(0,10);
+    const isToday = dateStr === today.toISOString().slice(0,10);
+    const hasRecord = recordDates.has(dateStr);
+    const isPast = d < today && !isToday;
+    let dotClass = 'dot-grey';
+    if (hasRecord) dotClass = 'dot-green';
+    else if (isPast) dotClass = 'dot-yellow';
+    calHTML += `
+      <div class="cal-day">
+        <div class="cal-day-label">${days[i]}</div>
+        <div class="cal-dot ${dotClass} ${isToday?'dot-today':''}">${d.getDate()}</div>
+      </div>`;
+  }
+  document.getElementById('calWeek').innerHTML = calHTML;
+
+  // History
+  const sortedRecs = [...records].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+  let histHTML = '';
+  if (sortedRecs.length === 0) {
+    histHTML = '<div class="history-item"><span style="color:var(--text-light);font-size:13px">Nenhum registro ainda.</span></div>';
+  }
+  sortedRecs.forEach(r => {
+    const ctrG = r.views > 0 ? ((r.cliques/r.views)*100).toFixed(2) : '0.00';
+    const d = new Date(r.date+'T12:00:00');
+    histHTML += `
+      <div class="history-item">
+        <div>
+          <div class="history-date">${d.toLocaleDateString('pt-BR',{weekday:'short', day:'2-digit', month:'short'})}</div>
+          <div class="history-stats">${r.views.toLocaleString('pt-BR')} views · ${ctrG}% CTR · ${r.videos} vídeos</div>
+        </div>
+        <div class="history-revenue">R$${r.receita.toFixed(2).replace('.',',')}</div>
+      </div>`;
+  });
+  document.getElementById('historyList').innerHTML = histHTML;
+}
+
+function badgeHTML(status, label) {
+  const cls = status === 'green' ? 'badge-green' : status === 'yellow' ? 'badge-yellow' : 'badge-red';
+  return `<div class="card-badge ${cls}">${label}</div>`;
+}
+
+// =================== FORM ===================
+function setTodayDate() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('f-data').value = today;
+}
+
+function saveRecord() {
+  const date = document.getElementById('f-data').value;
+  const views = parseInt(document.getElementById('f-views').value) || 0;
+  const cliques = parseInt(document.getElementById('f-cliques').value) || 0;
+  const receita = parseFloat(document.getElementById('f-receita').value) || 0;
+  const videos = parseInt(document.getElementById('f-videos').value) || 0;
+  const ctr_casa = parseFloat(document.getElementById('f-casa').value) || 0;
+  const ctr_beleza = parseFloat(document.getElementById('f-beleza').value) || 0;
+  const ctr_util = parseFloat(document.getElementById('f-util').value) || 0;
+
+  if (!date) { alert('Informe a data.'); return; }
+
+  const records = getData();
+  const idx = records.findIndex(r => r.date === date);
+  const rec = { date, views, cliques, receita, videos, ctr_casa, ctr_beleza, ctr_util };
+  if (idx >= 0) records[idx] = rec; else records.push(rec);
+  saveData(records);
+
+  const msg = document.getElementById('successMsg');
+  msg.style.display = 'block';
+  setTimeout(()=>{ msg.style.display='none'; }, 3000);
+
+  render();
+}
+
+// =================== EXPORT ===================
+function exportCSV() {
+  const records = getData();
+  const weekIdx = getCurrentWeek(records);
+  const weekRecords = getThisWeekRecords(records, weekIdx);
+  if (weekRecords.length === 0) { alert('Nenhum dado para exportar.'); return; }
+
+  const header = 'Data,Views,Cliques,CTR Geral (%),Receita (R$),Vídeos,CTR Casa (%),CTR Beleza (%),CTR Utilidades (%)';
+  const rows = weekRecords.map(r => {
+    const ctr = r.views > 0 ? ((r.cliques/r.views)*100).toFixed(2) : '0.00';
+    return [r.date, r.views, r.cliques, ctr, r.receita.toFixed(2), r.videos, r.ctr_casa, r.ctr_beleza, r.ctr_util].join(',');
+  });
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `darkline_semana${weekIdx+1}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// =================== NAV ===================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.textContent.toLowerCase().includes(page === 'painel' ? 'painel' : 'registrar')) t.classList.add('active');
+  });
+  if (page === 'painel') render();
+}
+
+// =================== INIT ===================
+seedDemo();
+setTodayDate();
+render();
+</script>
+</body>
+</html>
