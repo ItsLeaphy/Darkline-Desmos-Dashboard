@@ -3,153 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Darkline Desmos — Dashboard</title>
+<title>Darkline Desmos — Dashboard v3</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #f8f8f6;
-    --surface: #ffffff;
-    --border: #e4e4e0;
-    --border-strong: #c8c8c4;
-    --text: #1a1a18;
-    --text-mid: #5a5a56;
-    --text-light: #9a9a96;
-    --green: #1a7a3c;
-    --green-bg: #e8f5ed;
-    --green-border: #a8d8b8;
-    --yellow: #8a6a00;
-    --yellow-bg: #fef9e6;
-    --yellow-border: #e8d890;
-    --red: #a01820;
-    --red-bg: #fde8e8;
-    --red-border: #e8a8a8;
-    --mono: 'DM Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
+    --bg: #f8f8f6; --surface: #ffffff; --border: #e4e4e0; --border-strong: #c8c8c4;
+    --text: #1a1a18; --text-mid: #5a5a56; --text-light: #9a9a96;
+    --green: #1a7a3c; --green-bg: #e8f5ed; --green-border: #a8d8b8;
+    --yellow: #8a6a00; --yellow-bg: #fef9e6; --yellow-border: #e8d890;
+    --red: #a01820; --red-bg: #fde8e8; --red-border: #e8a8a8;
+    --blue: #1a4a8a; --blue-bg: #e8f0fd; --blue-border: #a8c0e8;
+    --mono: 'DM Mono', monospace; --sans: 'DM Sans', sans-serif;
   }
-
-  /* DARK MODE */
   body.dark {
-    --bg: #111110;
-    --surface: #1c1c1a;
-    --border: #2e2e2c;
-    --border-strong: #444442;
-    --text: #f0f0ee;
-    --text-mid: #a0a09c;
-    --text-light: #666662;
-    --green: #4ade80;
-    --green-bg: #0d2e1a;
-    --green-border: #1a4a2a;
-    --yellow: #fbbf24;
-    --yellow-bg: #2a2000;
-    --yellow-border: #4a3800;
-    --red: #f87171;
-    --red-bg: #2a0a0a;
-    --red-border: #4a1a1a;
+    --bg: #111110; --surface: #1c1c1a; --border: #2e2e2c; --border-strong: #444442;
+    --text: #f0f0ee; --text-mid: #a0a09c; --text-light: #666662;
+    --green: #4ade80; --green-bg: #0d2e1a; --green-border: #1a4a2a;
+    --yellow: #fbbf24; --yellow-bg: #2a2000; --yellow-border: #4a3800;
+    --red: #f87171; --red-bg: #2a0a0a; --red-border: #4a1a1a;
+    --blue: #60a5fa; --blue-bg: #0a1a2a; --blue-border: #1a3a5a;
   }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; transition: background 0.2s, color 0.2s; }
 
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 15px;
-    transition: background 0.2s, color 0.2s;
+  /* READONLY BANNER */
+  .readonly-banner {
+    display: none;
+    background: var(--blue-bg);
+    border-bottom: 1px solid var(--blue-border);
+    padding: 8px 16px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--blue);
+    letter-spacing: 0.04em;
   }
+  body.readonly .readonly-banner { display: block; }
+  body.readonly .submit-btn,
+  body.readonly .hist-btn.del,
+  body.readonly .hist-btn[onclick*="editRecord"] { opacity: 0.4; pointer-events: none; }
 
   /* NAV */
-  .nav {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .nav-inner {
-    max-width: 680px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    height: 56px;
-    gap: 8px;
-  }
-  .nav-logo {
-    font-family: var(--mono);
-    font-weight: 500;
-    font-size: 13px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text);
-    flex-shrink: 0;
-  }
+  .nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .nav-inner { max-width: 720px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 56px; gap: 8px; }
+  .nav-logo { font-family: var(--mono); font-weight: 500; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); flex-shrink: 0; }
   .nav-logo span { color: var(--text-light); }
   .nav-tabs { display: flex; gap: 4px; }
-  .nav-tab {
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 500;
-    padding: 7px 12px;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    cursor: pointer;
-    background: none;
-    color: var(--text-mid);
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
+  .nav-tab { font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 7px 11px; border: 1px solid transparent; border-radius: 6px; cursor: pointer; background: none; color: var(--text-mid); transition: all 0.15s; white-space: nowrap; }
   .nav-tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
   .nav-tab:not(.active):hover { background: var(--bg); border-color: var(--border); color: var(--text); }
-
-  /* DARK TOGGLE */
-  .dark-toggle {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    width: 34px;
-    height: 32px;
-    cursor: pointer;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: var(--text-mid);
-    transition: all 0.15s;
-  }
+  .dark-toggle { background: none; border: 1px solid var(--border); border-radius: 6px; width: 34px; height: 32px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-mid); transition: all 0.15s; }
   .dark-toggle:hover { border-color: var(--border-strong); color: var(--text); }
 
-  /* PAGES */
   .page { display: none; }
   .page.active { display: block; }
+  .container { max-width: 720px; margin: 0 auto; padding: 24px 16px 80px; }
 
-  /* LAYOUT */
-  .container {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 24px 16px 80px;
-  }
-
-  /* SECTION HEADERS */
-  .section-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-light);
-    margin-bottom: 12px;
-    margin-top: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+  .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-light); margin-bottom: 12px; margin-top: 28px; display: flex; align-items: center; justify-content: space-between; }
   .section-title:first-child { margin-top: 0; }
 
-  /* CARDS GRID */
+  /* CARDS */
   .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
   .card-label { font-size: 11px; font-weight: 500; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
@@ -160,31 +75,22 @@
   .badge-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
   .badge-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
 
-  /* WEEK PROGRESS */
+  /* PROGRESS */
   .week-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
   .week-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
   .week-label { font-size: 13px; font-weight: 600; }
   .week-percent { font-family: var(--mono); font-size: 22px; font-weight: 500; }
   .progress-bar-bg { height: 8px; background: var(--bg); border-radius: 100px; overflow: hidden; border: 1px solid var(--border); }
   .progress-bar-fill { height: 100%; border-radius: 100px; transition: width 0.5s ease; }
-  .fill-green { background: var(--green); }
-  .fill-yellow { background: #d4a000; }
-  .fill-red { background: #c02030; }
+  .fill-green { background: var(--green); } .fill-yellow { background: #d4a000; } .fill-red { background: #c02030; }
   .week-rows { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .week-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
   .week-row-label { color: var(--text-mid); }
   .week-row-val { font-family: var(--mono); font-weight: 500; }
+  .week-alert { background: var(--yellow-bg); border: 1px solid var(--yellow-border); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--yellow); font-weight: 500; margin-top: 10px; }
 
-  /* PROJEÇÃO */
-  .proj-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  /* PROJ */
+  .proj-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
   .proj-icon { font-size: 20px; flex-shrink: 0; }
   .proj-text { font-size: 13px; color: var(--text-mid); line-height: 1.4; }
   .proj-text strong { color: var(--text); font-weight: 600; }
@@ -193,11 +99,11 @@
   .proj-ok { border-color: var(--green-border); background: var(--green-bg); }
   .proj-ok .proj-text { color: var(--green); }
 
-  /* CHART CARD */
+  /* CHART */
   .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
   .chart-card canvas { width: 100% !important; }
 
-  /* NICHO RANKING */
+  /* NICHOS RANKING */
   .nicho-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
   .nicho-row { margin-bottom: 14px; }
   .nicho-row:last-child { margin-bottom: 0; }
@@ -219,306 +125,189 @@
   .dot-grey { background: var(--bg); color: var(--text-light); border-color: var(--border); }
   .dot-today { box-shadow: 0 0 0 2px var(--text); }
 
-  /* WEEK ALERT */
-  .week-alert {
-    background: var(--yellow-bg);
-    border: 1px solid var(--yellow-border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: var(--yellow);
-    font-weight: 500;
-    margin-top: 10px;
-  }
+  /* COMPARATIVO TABLE */
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comp-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); border-bottom: 1px solid var(--border); }
+  .comp-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-family: var(--mono); }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table td:first-child { font-family: var(--sans); font-weight: 600; color: var(--text); }
+  .comp-table tr.current-week td { background: var(--green-bg); }
+  .comp-table tr.current-week td:first-child { color: var(--green); }
 
-  /* SEMANA INFO */
+  /* WEEK INFO BAR */
   .week-info-bar { background: var(--text); color: var(--bg); border-radius: 10px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
   .week-info-bar strong { font-family: var(--mono); }
 
   /* HISTORY */
-  .history-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-  }
+  .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .history-date { font-family: var(--mono); font-size: 13px; font-weight: 500; }
   .history-stats { font-size: 12px; color: var(--text-mid); margin-top: 3px; }
   .history-revenue { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--green); flex-shrink: 0; }
   .history-actions { display: flex; gap: 6px; flex-shrink: 0; }
-  .hist-btn {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 9px;
-    border-radius: 5px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    background: var(--bg);
-    color: var(--text-mid);
-    transition: all 0.15s;
-    font-family: var(--sans);
-  }
+  .hist-btn { font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 5px; border: 1px solid var(--border); cursor: pointer; background: var(--bg); color: var(--text-mid); transition: all 0.15s; font-family: var(--sans); }
   .hist-btn:hover { border-color: var(--border-strong); color: var(--text); }
   .hist-btn.del { color: var(--red); border-color: var(--red-border); background: var(--red-bg); }
-  .hist-btn.del:hover { background: var(--red-bg); }
 
-  /* FILTER BAR */
-  .filter-bar {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-  }
-  .filter-btn {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 5px 11px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    background: var(--surface);
-    color: var(--text-mid);
-    transition: all 0.15s;
-    font-family: var(--sans);
-  }
+  /* FILTER */
+  .filter-bar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .filter-btn { font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; background: var(--surface); color: var(--text-mid); transition: all 0.15s; font-family: var(--sans); }
   .filter-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
   .filter-btn:not(.active):hover { border-color: var(--border-strong); color: var(--text); }
 
-  /* EXPORT BTNS */
+  /* EXPORT */
   .export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .export-btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--surface);
-    border: 1px solid var(--border-strong);
-    border-radius: 8px;
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    cursor: pointer;
-    letter-spacing: 0.02em;
-    transition: all 0.15s;
-  }
+  .export-btn { width: 100%; padding: 12px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px; font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; letter-spacing: 0.02em; transition: all 0.15s; }
   .export-btn:hover { background: var(--bg); }
 
-  /* FORM PAGE */
+  /* FORM */
   .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
   .form-group { margin-bottom: 16px; }
   .form-group:last-child { margin-bottom: 0; }
   .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-mid); margin-bottom: 6px; letter-spacing: 0.04em; text-transform: uppercase; }
-  .form-input, .form-select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-strong);
-    border-radius: 7px;
-    font-family: var(--mono);
-    font-size: 15px;
-    color: var(--text);
-    background: var(--bg);
-    transition: border-color 0.15s;
-    -webkit-appearance: none;
-  }
-  .form-input:focus, .form-select:focus { outline: none; border-color: var(--text); background: var(--surface); }
+  .form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 7px; font-family: var(--mono); font-size: 15px; color: var(--text); background: var(--bg); transition: border-color 0.15s; -webkit-appearance: none; }
+  .form-input:focus { outline: none; border-color: var(--text); background: var(--surface); }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .nicho-field-label { font-size: 12px; color: var(--text-mid); margin-bottom: 4px; font-weight: 500; }
-
-  .form-mode-bar {
-    background: var(--yellow-bg);
-    border: 1px solid var(--yellow-border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: var(--yellow);
-    font-weight: 500;
-    margin-bottom: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .cancel-edit-btn {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 9px;
-    border-radius: 5px;
-    border: 1px solid var(--yellow-border);
-    cursor: pointer;
-    background: transparent;
-    color: var(--yellow);
-    font-family: var(--sans);
-  }
-
-  .submit-btn {
-    width: 100%;
-    padding: 14px;
-    background: var(--text);
-    color: var(--bg);
-    border: none;
-    border-radius: 8px;
-    font-family: var(--sans);
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    letter-spacing: 0.02em;
-    transition: opacity 0.15s;
-    margin-top: 4px;
-  }
+  .form-mode-bar { background: var(--yellow-bg); border: 1px solid var(--yellow-border); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--yellow); font-weight: 500; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .cancel-edit-btn { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 5px; border: 1px solid var(--yellow-border); cursor: pointer; background: transparent; color: var(--yellow); font-family: var(--sans); }
+  .submit-btn { width: 100%; padding: 14px; background: var(--text); color: var(--bg); border: none; border-radius: 8px; font-family: var(--sans); font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.02em; transition: opacity 0.15s; margin-top: 4px; }
   .submit-btn:hover { opacity: 0.85; }
+  .success-msg { display: none; background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green); padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; margin-top: 12px; text-align: center; }
+  .dirty-warn { background: var(--yellow-bg); border: 1px solid var(--yellow-border); color: var(--yellow); padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; margin-top: 10px; display: none; }
 
-  .success-msg {
-    display: none;
-    background: var(--green-bg);
-    border: 1px solid var(--green-border);
-    color: var(--green);
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    margin-top: 12px;
-    text-align: center;
-  }
-
-  .dirty-warn {
-    background: var(--yellow-bg);
-    border: 1px solid var(--yellow-border);
-    color: var(--yellow);
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
-    margin-top: 10px;
-    display: none;
-  }
-
-  /* MODAL ADM */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; }
   .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    width: 100%;
-    max-width: 360px;
-    position: relative;
-  }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 100%; max-width: 480px; position: relative; margin: auto; }
   .modal-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
   .modal-sub { font-size: 13px; color: var(--text-mid); margin-bottom: 18px; }
-  .modal-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    color: var(--text-light);
-    line-height: 1;
-  }
-  .modal-input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border-strong);
-    border-radius: 7px;
-    font-family: var(--mono);
-    font-size: 16px;
-    color: var(--text);
-    background: var(--bg);
-    margin-bottom: 12px;
-    letter-spacing: 0.15em;
-  }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-light); line-height: 1; }
+  .modal-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 7px; font-family: var(--mono); font-size: 16px; color: var(--text); background: var(--bg); margin-bottom: 12px; letter-spacing: 0.15em; }
   .modal-input:focus { outline: none; border-color: var(--text); }
-  .modal-btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--text);
-    color: var(--bg);
-    border: none;
-    border-radius: 8px;
-    font-family: var(--sans);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-bottom: 8px;
-  }
-  .modal-err { font-size: 12px; color: var(--red); font-weight: 500; display: none; margin-top: -4px; margin-bottom: 8px; }
+  .modal-btn { width: 100%; padding: 12px; background: var(--text); color: var(--bg); border: none; border-radius: 8px; font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
+  .modal-err { font-size: 12px; color: var(--red); font-weight: 500; display: none; margin-bottom: 8px; }
 
-  /* ADM PANEL */
+  /* ADM */
   .adm-panel { display: none; }
   .adm-panel.open { display: block; }
-  .adm-section { margin-bottom: 20px; }
+  .adm-section { margin-bottom: 24px; }
   .adm-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 10px; }
-  .adm-btn {
-    width: 100%;
-    padding: 11px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    cursor: pointer;
-    text-align: left;
-    margin-bottom: 6px;
-    transition: all 0.15s;
-  }
+  .adm-btn { width: 100%; padding: 11px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; text-align: left; margin-bottom: 6px; transition: all 0.15s; }
   .adm-btn:hover { border-color: var(--border-strong); }
   .adm-btn.danger { color: var(--red); border-color: var(--red-border); background: var(--red-bg); }
-  .adm-btn.danger:hover { opacity: 0.85; }
+  .adm-btn.active-toggle { color: var(--blue); border-color: var(--blue-border); background: var(--blue-bg); }
+
+  /* METAS EDITOR */
+  .meta-row { display: grid; grid-template-columns: 120px 1fr 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .meta-row-label { font-size: 13px; font-weight: 600; }
+  .meta-input { padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 6px; font-family: var(--mono); font-size: 13px; color: var(--text); background: var(--bg); width: 100%; }
+  .meta-input:focus { outline: none; border-color: var(--text); }
+  .meta-header { display: grid; grid-template-columns: 120px 1fr 1fr 1fr; gap: 8px; margin-bottom: 6px; }
+  .meta-header span { font-size: 11px; font-weight: 600; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* NICHOS EDITOR */
+  .nicho-edit-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .nicho-edit-icon { width: 36px; padding: 6px 4px; border: 1px solid var(--border-strong); border-radius: 6px; font-family: var(--mono); font-size: 14px; background: var(--surface); text-align: center; }
+  .nicho-edit-name { flex: 1; padding: 6px 10px; border: 1px solid var(--border-strong); border-radius: 6px; font-family: var(--sans); font-size: 13px; color: var(--text); background: var(--surface); }
+  .nicho-edit-name:focus, .nicho-edit-icon:focus { outline: none; border-color: var(--text); }
+  .nicho-del-btn { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 16px; padding: 4px; flex-shrink: 0; }
+  .nicho-del-btn:hover { color: var(--red); }
+  .nicho-add-btn { width: 100%; padding: 9px; border: 1px dashed var(--border-strong); border-radius: 8px; background: none; font-family: var(--sans); font-size: 13px; color: var(--text-mid); cursor: pointer; transition: all 0.15s; }
+  .nicho-add-btn:hover { border-color: var(--text); color: var(--text); }
+  .nicho-warn { font-size: 12px; color: var(--yellow); background: var(--yellow-bg); border: 1px solid var(--yellow-border); border-radius: 6px; padding: 8px 12px; margin-top: 8px; }
+
+  /* LOG */
+  .log-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .log-item:last-child { border-bottom: none; }
+  .log-time { font-family: var(--mono); color: var(--text-light); flex-shrink: 0; font-size: 11px; padding-top: 1px; }
+  .log-msg { color: var(--text-mid); line-height: 1.4; }
+  .log-msg strong { color: var(--text); }
+  .log-icon { flex-shrink: 0; }
 
   .divider { height: 1px; background: var(--border); margin: 20px 0; }
 
-  @media (max-width: 400px) {
+  @media (max-width: 420px) {
     .cards-grid { grid-template-columns: 1fr; }
     .form-grid { grid-template-columns: 1fr; }
     .card-value { font-size: 22px; }
     .export-row { grid-template-columns: 1fr; }
+    .meta-row { grid-template-columns: 80px 1fr 1fr 1fr; }
+    .nav-tab { padding: 7px 8px; font-size: 12px; }
   }
 </style>
 </head>
 <body>
 
+<div class="readonly-banner">👁 MODO LEITURA — Registros e edições estão bloqueados</div>
+
 <!-- ADM MODAL -->
 <div class="modal-overlay" id="admOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeAdm()">✕</button>
+
+    <!-- LOGIN -->
     <div id="admLoginPanel">
       <div class="modal-title">Console ADM</div>
-      <div class="modal-sub">Digite a senha para acessar as funções administrativas.</div>
+      <div class="modal-sub">Acesso restrito à equipe administrativa.</div>
       <input class="modal-input" type="password" id="admPass" placeholder="••••••" onkeydown="if(event.key==='Enter')checkAdmPass()">
       <div class="modal-err" id="admErr">Senha incorreta.</div>
       <button class="modal-btn" onclick="checkAdmPass()">Entrar</button>
     </div>
+
+    <!-- PAINEL ADM -->
     <div class="adm-panel" id="admPanel">
       <div class="modal-title">Console ADM</div>
-      <div class="modal-sub" style="margin-bottom:16px">Acesso concedido. Use com cuidado.</div>
+      <div class="modal-sub" style="margin-bottom:16px">v3.0 — Acesso concedido.</div>
+
+      <div class="adm-section">
+        <div class="adm-title">Modo de Acesso</div>
+        <button class="adm-btn" id="readonlyBtn" onclick="toggleReadonly()">👁 Ativar modo somente leitura</button>
+      </div>
+
+      <div class="adm-section">
+        <div class="adm-title">Nichos</div>
+        <button class="adm-btn" onclick="openNichosEditor()">⚙ Gerenciar nichos</button>
+      </div>
+
+      <div class="adm-section">
+        <div class="adm-title">Metas por Semana</div>
+        <button class="adm-btn" onclick="openMetasEditor()">✎ Editar metas</button>
+      </div>
 
       <div class="adm-section">
         <div class="adm-title">Dados</div>
-        <button class="adm-btn" onclick="admExportJSON()">↓ Exportar backup completo (JSON)</button>
-        <button class="adm-btn" onclick="admImportJSON()">↑ Importar backup (JSON)</button>
+        <button class="adm-btn" onclick="admExportJSON()">↓ Backup completo (JSON)</button>
+        <button class="adm-btn" onclick="admImportJSON()">↑ Restaurar backup (JSON)</button>
         <input type="file" id="admImportFile" accept=".json" style="display:none" onchange="admDoImport(this)">
       </div>
 
       <div class="adm-section">
-        <div class="adm-title">Ações destrutivas</div>
+        <div class="adm-title">Zona de perigo</div>
         <button class="adm-btn danger" onclick="admResetAll()">⚠ Apagar todos os registros</button>
       </div>
+    </div>
+
+    <!-- METAS EDITOR -->
+    <div id="metasEditorPanel" style="display:none">
+      <button class="modal-close" onclick="closeMetasEditor()">✕</button>
+      <div class="modal-title" style="margin-bottom:4px">Editar metas</div>
+      <div class="modal-sub">Alterações salvas automaticamente no localStorage.</div>
+      <div class="meta-header">
+        <span></span><span>Views/dia</span><span>Rec. mín R$</span><span>Rec. máx R$</span>
+      </div>
+      <div id="metasRows"></div>
+      <button class="modal-btn" style="margin-top:8px" onclick="saveMetas()">Salvar metas</button>
+    </div>
+
+    <!-- NICHOS EDITOR -->
+    <div id="nichosEditorPanel" style="display:none">
+      <button class="modal-close" onclick="closeNichosEditor()">✕</button>
+      <div class="modal-title" style="margin-bottom:4px">Gerenciar nichos</div>
+      <div class="modal-sub">Renomear preserva o histórico. Remover apenas oculta o nicho do formulário.</div>
+      <div id="nichosRows"></div>
+      <button class="nicho-add-btn" onclick="addNichoRow()" style="margin-top:4px">+ Adicionar nicho</button>
+      <div class="nicho-warn" id="nichoWarn" style="display:none"></div>
+      <button class="modal-btn" style="margin-top:12px" onclick="saveNichos()">Salvar nichos</button>
     </div>
   </div>
 </div>
@@ -531,11 +320,11 @@
       <button class="nav-tab" onclick="showPage('registrar')">Registrar</button>
       <button class="nav-tab" onclick="showPage('adm')">ADM</button>
     </div>
-    <button class="dark-toggle" onclick="toggleDark()" id="darkBtn" title="Alternar modo escuro">🌙</button>
+    <button class="dark-toggle" onclick="toggleDark()" id="darkBtn" title="Alternar modo">🌙</button>
   </div>
 </nav>
 
-<!-- PAINEL -->
+<!-- ========== PAINEL ========== -->
 <div id="page-painel" class="page active">
   <div class="container">
 
@@ -564,7 +353,7 @@
       <div class="card">
         <div class="card-label">Vídeos / sem.</div>
         <div class="card-value" id="card-videos">—</div>
-        <div class="card-sub" id="card-by">—</div>
+        <div class="card-sub" id="card-by">esta semana</div>
       </div>
     </div>
 
@@ -590,21 +379,21 @@
     <div id="projCard"></div>
 
     <p class="section-title">Últimos 7 dias</p>
-    <div class="chart-card">
-      <canvas id="chartLine" height="180"></canvas>
-    </div>
+    <div class="chart-card"><canvas id="chartLine" height="180"></canvas></div>
 
     <p class="section-title">Ranking por CTR — Nichos</p>
     <div class="nicho-card" id="nichoRanking"></div>
 
-    <p class="section-title">Calendário da Semana</p>
-    <div class="cal-card">
-      <div class="cal-week" id="calWeek"></div>
+    <p class="section-title">Comparativo entre Semanas</p>
+    <div class="chart-card" style="margin-bottom:10px"><canvas id="chartComp" height="160"></canvas></div>
+    <div class="form-card" style="padding:0;overflow:hidden">
+      <table class="comp-table" id="compTable"></table>
     </div>
 
-    <div class="section-title">
-      <span>Histórico de Registros</span>
-    </div>
+    <p class="section-title">Calendário da Semana</p>
+    <div class="cal-card"><div class="cal-week" id="calWeek"></div></div>
+
+    <div class="section-title"><span>Histórico de Registros</span></div>
     <div class="filter-bar" id="filterBar"></div>
     <div id="historyList"></div>
 
@@ -617,7 +406,7 @@
   </div>
 </div>
 
-<!-- REGISTRAR -->
+<!-- ========== REGISTRAR ========== -->
 <div id="page-registrar" class="page">
   <div class="container">
 
@@ -662,134 +451,194 @@
 
     <p class="section-title" style="margin-top:20px">CTR por nicho (%)</p>
     <div class="form-card">
-      <div class="nicho-fields" style="display:grid;gap:10px">
-        <div class="form-group">
-          <div class="nicho-field-label">🏠 Casa & Organização</div>
-          <input class="form-input" type="number" id="f-casa" placeholder="0.0" step="0.1" min="0" max="100">
-        </div>
-        <div class="form-group">
-          <div class="nicho-field-label">💄 Beleza & Skincare</div>
-          <input class="form-input" type="number" id="f-beleza" placeholder="0.0" step="0.1" min="0" max="100">
-        </div>
-        <div class="form-group" style="margin-bottom:0">
-          <div class="nicho-field-label">⚡ Utilidades Virais</div>
-          <input class="form-input" type="number" id="f-util" placeholder="0.0" step="0.1" min="0" max="100">
-        </div>
-      </div>
+      <div id="nichoCTRFields" style="display:grid;gap:10px"></div>
     </div>
 
     <div style="margin-top:16px">
       <button class="submit-btn" id="submitBtn" onclick="saveRecord()">Salvar registro</button>
-      <div class="dirty-warn" id="dirtyWarn">⚠ Você tem campos preenchidos. Tem certeza que quer sair?</div>
+      <div class="dirty-warn" id="dirtyWarn"></div>
       <div class="success-msg" id="successMsg">✓ Registro salvo com sucesso!</div>
     </div>
 
   </div>
 </div>
 
-<!-- ADM PAGE -->
+<!-- ========== ADM PAGE ========== -->
 <div id="page-adm" class="page">
   <div class="container">
     <p class="section-title">Administração</p>
     <div class="form-card" style="text-align:center;padding:32px 20px">
       <div style="font-size:32px;margin-bottom:12px">🔒</div>
       <div style="font-size:15px;font-weight:600;margin-bottom:6px">Console ADM</div>
-      <div style="font-size:13px;color:var(--text-mid);margin-bottom:20px">Acesso restrito. Funções de backup, importação e reset de dados.</div>
+      <div style="font-size:13px;color:var(--text-mid);margin-bottom:20px">Gerencie nichos, metas, backups e modo de acesso.</div>
       <button class="submit-btn" style="max-width:240px;margin:0 auto" onclick="openAdm()">Acessar console</button>
+    </div>
+
+    <p class="section-title" style="margin-top:28px">Log de Alterações</p>
+    <div class="form-card" style="padding:8px 16px" id="logList">
+      <div style="color:var(--text-light);font-size:13px;padding:12px 0">Nenhuma alteração registrada ainda.</div>
     </div>
   </div>
 </div>
 
 <script>
-// =================== CONSTANTS ===================
-const WEEKS = [
-  { n: 1, viewsMeta: 2000,  receitaMin: 5,   receitaMax: 15  },
-  { n: 2, viewsMeta: 8000,  receitaMin: 20,  receitaMax: 50  },
-  { n: 3, viewsMeta: 20000, receitaMin: 50,  receitaMax: 100 },
-  { n: 4, viewsMeta: 40000, receitaMin: 100, receitaMax: 150 },
+// ============================================================
+// CONSTANTS & DEFAULT CONFIG
+// ============================================================
+const DEFAULT_WEEKS = [
+  { n:1, viewsMeta:2000,  receitaMin:5,   receitaMax:15  },
+  { n:2, viewsMeta:8000,  receitaMin:20,  receitaMax:50  },
+  { n:3, viewsMeta:20000, receitaMin:50,  receitaMax:100 },
+  { n:4, viewsMeta:40000, receitaMin:100, receitaMax:150 },
 ];
-const NICHOS = ['Casa & Organização', 'Beleza & Skincare', 'Utilidades Virais'];
-const NICHO_ICONS = ['🏠', '💄', '⚡'];
-const NICHO_KEYS = ['ctr_casa', 'ctr_beleza', 'ctr_util'];
+
+const DEFAULT_NICHOS = [
+  { id:'nicho_casa',   icon:'🏠', name:'Casa & Organização' },
+  { id:'nicho_beleza', icon:'💄', name:'Beleza & Skincare'  },
+  { id:'nicho_util',   icon:'⚡', name:'Utilidades Virais'  },
+];
+
 const ADM_PASS = 'darkline21';
 
-// =================== STATE ===================
+// ============================================================
+// STATE
+// ============================================================
 let lineChart = null;
+let compChart = null;
 let editingDate = null;
 let activeFilter = 'all';
 let isDirty = false;
 
-// =================== DATA ===================
-function getData() {
-  const raw = localStorage.getItem('darkline_records');
-  return raw ? JSON.parse(raw) : [];
-}
-function saveData(arr) {
-  localStorage.setItem('darkline_records', JSON.stringify(arr));
-}
-function getDarkMode() {
-  return localStorage.getItem('darkline_dark') === '1';
-}
-function saveDarkMode(val) {
-  localStorage.setItem('darkline_dark', val ? '1' : '0');
+// ============================================================
+// STORAGE HELPERS
+// ============================================================
+function getData()    { try { return JSON.parse(localStorage.getItem('darkline_records') || '[]'); } catch(e) { return []; } }
+function saveData(a)  { localStorage.setItem('darkline_records', JSON.stringify(a)); }
+function getWeeks()   { try { return JSON.parse(localStorage.getItem('darkline_weeks') || 'null') || DEFAULT_WEEKS; } catch(e) { return DEFAULT_WEEKS; } }
+function saveWeeks(w) { localStorage.setItem('darkline_weeks', JSON.stringify(w)); }
+function getNichos()  { try { return JSON.parse(localStorage.getItem('darkline_nichos') || 'null') || DEFAULT_NICHOS; } catch(e) { return DEFAULT_NICHOS; } }
+function saveNichosData(n) { localStorage.setItem('darkline_nichos', JSON.stringify(n)); }
+function getLog()     { try { return JSON.parse(localStorage.getItem('darkline_log') || '[]'); } catch(e) { return []; } }
+function getDarkMode(){ return localStorage.getItem('darkline_dark') === '1'; }
+function saveDarkMode(v) { localStorage.setItem('darkline_dark', v ? '1' : '0'); }
+function getReadonly(){ return localStorage.getItem('darkline_readonly') === '1'; }
+function saveReadonly(v) { localStorage.setItem('darkline_readonly', v ? '1' : '0'); }
+
+// ============================================================
+// BUG 2 FIX: Timezone-safe "today" date string
+// Instead of new Date().toISOString().slice(0,10) which uses UTC
+// and can return yesterday for UTC-3 users, we use local date parts.
+// ============================================================
+function localDateStr(date) {
+  const d = date || new Date();
+  const year  = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day   = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
-// =================== DEMO ===================
+// ============================================================
+// LOG
+// ============================================================
+function appendLog(action, detail, autor) {
+  const log = getLog();
+  log.unshift({
+    ts: new Date().toISOString(),
+    action,
+    detail,
+    autor: autor || localStorage.getItem('darkline_autor') || 'Desconhecido'
+  });
+  localStorage.setItem('darkline_log', JSON.stringify(log.slice(0, 200)));
+}
+
+function renderLog() {
+  const log = getLog();
+  const el = document.getElementById('logList');
+  if (!el) return;
+  if (log.length === 0) {
+    el.innerHTML = '<div style="color:var(--text-light);font-size:13px;padding:12px 0">Nenhuma alteração registrada ainda.</div>';
+    return;
+  }
+  const icons = { save:'💾', delete:'🗑', import:'📥', reset:'⚠', nichos:'⚙', metas:'✎', readonly:'👁' };
+  el.innerHTML = log.slice(0,50).map(l => {
+    const d = new Date(l.ts);
+    const timeStr = d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}) + ' ' + d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="log-item">
+      <span class="log-icon">${icons[l.action]||'•'}</span>
+      <span class="log-time">${timeStr}</span>
+      <span class="log-msg"><strong>${l.autor}</strong> — ${l.detail}</span>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// SEED DEMO
+// ============================================================
 function seedDemo() {
   if (getData().length > 0) return;
-  const today = new Date();
   const records = [];
   for (let i = 2; i >= 0; i--) {
-    const d = new Date(today);
+    // BUG 2 FIX: use local date arithmetic instead of toISOString()
+    const d = new Date();
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0,10);
-    records.push({
-      date: dateStr,
-      autor: 'Vitor',
-      views: [1540, 1870, 2210][2-i],
-      cliques: [62, 82, 99][2-i],
-      receita: [7.50, 11.20, 14.80][2-i],
-      videos: [3, 2, 4][2-i],
-      ctr_casa: [4.2, 4.5, 4.8][2-i],
-      ctr_beleza: [3.8, 3.6, 3.9][2-i],
-      ctr_util: [5.1, 5.4, 5.7][2-i],
-    });
+    const dateStr = localDateStr(d);
+    const rec = {
+      date: dateStr, autor: 'Vitor',
+      views: [1540,1870,2210][2-i], cliques: [62,82,99][2-i],
+      receita: [7.50,11.20,14.80][2-i], videos: [3,2,4][2-i],
+      nichos: { nicho_casa:[4.2,4.5,4.8][2-i], nicho_beleza:[3.8,3.6,3.9][2-i], nicho_util:[5.1,5.4,5.7][2-i] }
+    };
+    records.push(rec);
   }
   saveData(records);
 }
 
-// =================== HELPERS ===================
-function getCurrentWeek(records) {
-  if (records.length === 0) return 0;
-  const sorted = [...records].sort((a,b) => a.date.localeCompare(b.date));
-  const first = new Date(sorted[0].date);
-  const today = new Date();
-  const diff = Math.floor((today - first) / (1000*60*60*24));
-  return Math.min(Math.floor(diff / 7), 3);
+// ============================================================
+// MIGRATION: v2 records (ctr_casa etc.) → v3 (rec.nichos{})
+// ============================================================
+function migrateRecords() {
+  const records = getData();
+  let changed = false;
+  records.forEach(r => {
+    if (!r.nichos) {
+      r.nichos = {};
+      if (r.ctr_casa   != null) r.nichos['nicho_casa']   = r.ctr_casa;
+      if (r.ctr_beleza != null) r.nichos['nicho_beleza'] = r.ctr_beleza;
+      if (r.ctr_util   != null) r.nichos['nicho_util']   = r.ctr_util;
+      changed = true;
+    }
+  });
+  if (changed) saveData(records);
 }
 
-function getThisWeekRecords(records, weekIdx) {
-  if (records.length === 0) return [];
-  const sorted = [...records].sort((a,b) => a.date.localeCompare(b.date));
-  const first = new Date(sorted[0].date);
-  return records.filter(r => {
-    const d = new Date(r.date);
-    const diff = Math.floor((d - first) / (1000*60*60*24));
-    return Math.floor(diff / 7) === weekIdx;
-  });
+// ============================================================
+// WEEK HELPERS
+// ============================================================
+function getCurrentWeek(records) {
+  if (records.length === 0) return 0;
+  const sorted = [...records].sort((a,b)=>a.date.localeCompare(b.date));
+  const first = new Date(sorted[0].date + 'T12:00:00');
+  // BUG 3 FIX: clamp negative diffs to 0 so future-dated records don't break the week index
+  const diff = Math.max(0, Math.floor((new Date() - first) / 86400000));
+  return Math.min(Math.floor(diff/7), 3);
 }
 
 function getWeekIdxOf(records, date) {
   if (records.length === 0) return 0;
-  const sorted = [...records].sort((a,b) => a.date.localeCompare(b.date));
-  const first = new Date(sorted[0].date);
-  const d = new Date(date);
-  const diff = Math.floor((d - first) / (1000*60*60*24));
-  return Math.min(Math.floor(diff / 7), 3);
+  const sorted = [...records].sort((a,b)=>a.date.localeCompare(b.date));
+  const first = new Date(sorted[0].date + 'T12:00:00');
+  // BUG 3 FIX: same clamp for per-record week index calculation
+  const diff = Math.max(0, Math.floor((new Date(date + 'T12:00:00') - first) / 86400000));
+  return Math.min(Math.floor(diff/7), 3);
+}
+
+function getThisWeekRecords(records, weekIdx) {
+  if (records.length === 0) return [];
+  return records.filter(r => getWeekIdxOf(records, r.date) === weekIdx);
 }
 
 function getLast7(records) {
-  return [...records].sort((a,b) => a.date.localeCompare(b.date)).slice(-7);
+  return [...records].sort((a,b)=>a.date.localeCompare(b.date)).slice(-7);
 }
 
 function getStatus(value, min, max) {
@@ -799,18 +648,55 @@ function getStatus(value, min, max) {
 }
 
 function badgeHTML(status, label) {
-  const cls = status === 'green' ? 'badge-green' : status === 'yellow' ? 'badge-yellow' : 'badge-red';
+  const cls = `badge-${status}`;
   return `<div class="card-badge ${cls}">${label}</div>`;
 }
 
 function fmtDate(dateStr) {
-  const d = new Date(dateStr + 'T12:00:00');
-  return d.toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short' });
+  return new Date(dateStr+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'});
 }
 
-// =================== RENDER ===================
+// ============================================================
+// NICHO CTR FIELDS (dynamic)
+// ============================================================
+function renderNichoCTRFields(rec) {
+  const nichos = getNichos();
+  const container = document.getElementById('nichoCTRFields');
+  container.innerHTML = nichos.map((n,i) => {
+    const val = rec && rec.nichos ? (rec.nichos[n.id] || '') : '';
+    const isLast = i === nichos.length - 1;
+    return `<div class="form-group" style="${isLast?'margin-bottom:0':''}">
+      <div class="nicho-field-label">${n.icon} ${n.name}</div>
+      <input class="form-input" type="number" id="f-nicho-${n.id}" placeholder="0.0" step="0.1" min="0" max="100" value="${val}">
+    </div>`;
+  }).join('');
+
+  // BUG 5 FIX: always reattach dirty listeners after re-rendering nicho fields
+  attachNichoDirtyListeners();
+}
+
+// BUG 5 FIX: extracted into its own function so it can be called from anywhere
+function attachNichoDirtyListeners() {
+  const nichos = getNichos();
+  nichos.forEach(n => {
+    const el = document.getElementById(`f-nicho-${n.id}`);
+    if (el) {
+      // Remove and re-add to avoid duplicate listeners
+      el.removeEventListener('input', markDirty);
+      el.addEventListener('input', markDirty);
+    }
+  });
+}
+
+function markDirty() { isDirty = true; }
+
+// ============================================================
+// MAIN RENDER
+// ============================================================
 function render() {
   const records = getData();
+  const WEEKS = getWeeks();
+  const nichos = getNichos();
   const weekIdx = getCurrentWeek(records);
   const weekCfg = WEEKS[weekIdx];
   const weekRecords = getThisWeekRecords(records, weekIdx);
@@ -824,22 +710,19 @@ function render() {
   // Cards
   if (lastRec) {
     document.getElementById('card-views').textContent = lastRec.views.toLocaleString('pt-BR');
-    const ctrGeral = lastRec.views > 0 ? ((lastRec.cliques / lastRec.views)*100).toFixed(2) : '0.00';
+    const ctrGeral = lastRec.views > 0 ? ((lastRec.cliques/lastRec.views)*100).toFixed(2) : '0.00';
     document.getElementById('card-ctr').textContent = ctrGeral + '%';
     document.getElementById('card-receita').textContent = 'R$' + lastRec.receita.toFixed(2).replace('.',',');
-    const vidsSemana = weekRecords.reduce((s,r)=>s+r.videos,0);
-    document.getElementById('card-videos').textContent = vidsSemana;
+    document.getElementById('card-videos').textContent = weekRecords.reduce((s,r)=>s+r.videos,0);
     document.getElementById('card-by').textContent = lastRec.autor ? `por ${lastRec.autor}` : 'esta semana';
-
-    const viewsStatus = getStatus(lastRec.views, weekCfg.viewsMeta*0.7, weekCfg.viewsMeta);
-    document.getElementById('badge-views').innerHTML = badgeHTML(viewsStatus, lastRec.views >= weekCfg.viewsMeta ? '↑ Acima da meta' : lastRec.views >= weekCfg.viewsMeta*0.7 ? '~ Dentro' : '↓ Abaixo');
-    const recStatus = getStatus(lastRec.receita, weekCfg.receitaMin, weekCfg.receitaMax);
-    document.getElementById('badge-receita').innerHTML = badgeHTML(recStatus, lastRec.receita >= weekCfg.receitaMax ? '↑ Acima' : lastRec.receita >= weekCfg.receitaMin ? '~ Dentro' : '↓ Abaixo');
+    const vs = getStatus(lastRec.views, weekCfg.viewsMeta*0.7, weekCfg.viewsMeta);
+    document.getElementById('badge-views').innerHTML = badgeHTML(vs, lastRec.views>=weekCfg.viewsMeta?'↑ Acima da meta':lastRec.views>=weekCfg.viewsMeta*0.7?'~ Dentro':'↓ Abaixo');
+    const rs = getStatus(lastRec.receita, weekCfg.receitaMin, weekCfg.receitaMax);
+    document.getElementById('badge-receita').innerHTML = badgeHTML(rs, lastRec.receita>=weekCfg.receitaMax?'↑ Acima':lastRec.receita>=weekCfg.receitaMin?'~ Dentro':'↓ Abaixo');
   } else {
-    ['card-views','card-ctr','card-receita','card-videos'].forEach(id => document.getElementById(id).textContent = '—');
+    ['card-views','card-ctr','card-receita','card-videos'].forEach(id=>document.getElementById(id).textContent='—');
+    ['badge-views','badge-receita'].forEach(id=>document.getElementById(id).innerHTML='');
     document.getElementById('card-by').textContent = 'esta semana';
-    document.getElementById('badge-views').innerHTML = '';
-    document.getElementById('badge-receita').innerHTML = '';
   }
 
   // Progress
@@ -854,35 +737,24 @@ function render() {
   document.getElementById('wr-dias').textContent = weekRecords.length + ' / 7';
   const fill = document.getElementById('progressFill');
   fill.style.width = pct + '%';
-  fill.className = 'progress-bar-fill ' + (pct >= 100 ? 'fill-green' : pct >= 60 ? 'fill-yellow' : 'fill-red');
+  fill.className = 'progress-bar-fill ' + (pct>=100?'fill-green':pct>=60?'fill-yellow':'fill-red');
 
-  // Week alert (day 6 of 7)
-  const alertBox = document.getElementById('weekAlertBox');
+  // Week alert
   const daysLeft = 7 - weekRecords.length;
-  if (daysLeft === 1 && weekRecords.length > 0) {
-    alertBox.innerHTML = `<div class="week-alert">⚠ Último dia da semana ${weekIdx+1}. Registre hoje para não perder a contagem.</div>`;
-  } else {
-    alertBox.innerHTML = '';
-  }
+  document.getElementById('weekAlertBox').innerHTML = (daysLeft===1&&weekRecords.length>0)
+    ? `<div class="week-alert">⚠ Último dia da semana ${weekIdx+1}. Registre hoje para não perder a contagem.</div>` : '';
 
-  // PROJEÇÃO
+  // Projeção
   renderProjection(weekRecords, weekCfg, metaSem, totalViews);
 
-  // Chart
-  const labels = last7.map(r => {
-    const d = new Date(r.date);
-    return d.toLocaleDateString('pt-BR',{weekday:'short'});
-  });
+  // Line chart (últimos 7 dias)
+  const l7labels = last7.map(r => new Date(r.date + 'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short'}));
   if (lineChart) lineChart.destroy();
-  const ctx = document.getElementById('chartLine').getContext('2d');
-  lineChart = new Chart(ctx, {
-    data: {
-      labels,
-      datasets: [
-        { type:'line', label:'Views', data: last7.map(r=>r.views), borderColor:'#1a1a18', backgroundColor:'rgba(26,26,24,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#1a1a18', tension:0.3, fill:true, yAxisID:'y' },
-        { type:'line', label:'Receita (R$)', data: last7.map(r=>r.receita), borderColor:'#1a7a3c', backgroundColor:'transparent', borderWidth:2, pointRadius:3, pointBackgroundColor:'#1a7a3c', tension:0.3, yAxisID:'y1' }
-      ]
-    },
+  lineChart = new Chart(document.getElementById('chartLine').getContext('2d'), {
+    data: { labels: l7labels, datasets: [
+      { type:'line', label:'Views', data:last7.map(r=>r.views), borderColor:'#1a1a18', backgroundColor:'rgba(26,26,24,0.06)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#1a1a18', tension:0.3, fill:true, yAxisID:'y' },
+      { type:'line', label:'Receita (R$)', data:last7.map(r=>r.receita), borderColor:'#1a7a3c', backgroundColor:'transparent', borderWidth:2, pointRadius:3, pointBackgroundColor:'#1a7a3c', tension:0.3, yAxisID:'y1' }
+    ]},
     options: {
       responsive:true, interaction:{mode:'index',intersect:false},
       plugins:{ legend:{ labels:{ font:{family:"'DM Sans'",size:11}, boxWidth:12, usePointStyle:true } } },
@@ -895,194 +767,254 @@ function render() {
   });
 
   // Nichos ranking
-  const nichoAvgs = NICHOS.map((n,i) => {
-    const vals = records.filter(r => r[NICHO_KEYS[i]] != null).map(r => r[NICHO_KEYS[i]]);
-    const avg = vals.length > 0 ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
-    return { name: n, icon: NICHO_ICONS[i], avg };
+  const nichoStats = nichos.map(n => {
+    const vals = records.filter(r=>r.nichos&&r.nichos[n.id]!=null).map(r=>r.nichos[n.id]);
+    const avg = vals.length>0 ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
+    return { ...n, avg, count: vals.length };
   });
-  const sortedNichos = [...nichoAvgs].sort((a,b)=>b.avg-a.avg);
+  const sortedNichos = [...nichoStats].sort((a,b)=>b.avg-a.avg);
   const maxCtr = Math.max(...sortedNichos.map(n=>n.avg), 1);
   const minNicho = sortedNichos[sortedNichos.length-1];
-  let nichoHTML = '';
-  sortedNichos.forEach(n => {
-    const barPct = (n.avg / maxCtr * 100).toFixed(1);
-    const isElim = records.length >= 21 && n.name === minNicho.name;
-    nichoHTML += `<div class="nicho-row">
+  document.getElementById('nichoRanking').innerHTML = sortedNichos.map(n => {
+    const barPct = (n.avg/maxCtr*100).toFixed(1);
+    const isElim = records.length>=21 && n.id===minNicho.id && minNicho.avg < sortedNichos[0].avg;
+    return `<div class="nicho-row">
       <div class="nicho-top"><span class="nicho-name">${n.icon} ${n.name}</span><span class="nicho-ctr">${n.avg.toFixed(2)}%</span></div>
-      <div class="nicho-bar-bg"><div class="nicho-bar-fill" style="width:${barPct}%;${isElim?'background:#c02030':''}"></div></div>
-      ${isElim ? '<div class="nicho-elim">⚠ Eliminado no dia 21</div>' : ''}
+      <div class="nicho-bar-bg"><div class="nicho-bar-fill" style="width:${barPct}%;${isElim?'background:var(--red)':''}"></div></div>
+      ${n.count===0?'<div class="nicho-elim" style="color:var(--text-light)">Sem dados ainda</div>':''}
+      ${isElim?'<div class="nicho-elim">⚠ Eliminado no dia 21</div>':''}
     </div>`;
-  });
-  document.getElementById('nichoRanking').innerHTML = nichoHTML;
+  }).join('');
+
+  // Comparativo entre semanas
+  renderComparativo(records, WEEKS);
 
   // Calendar
   const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   const today = new Date();
+  const todayStr = localDateStr(today); // BUG 2 FIX: use local date
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
   const recordDates = new Set(records.map(r=>r.date));
-  let calHTML = '';
-  for (let i=0; i<7; i++) {
-    const d = new Date(startOfWeek);
-    d.setDate(startOfWeek.getDate() + i);
-    const dateStr = d.toISOString().slice(0,10);
-    const isToday = dateStr === today.toISOString().slice(0,10);
-    const hasRecord = recordDates.has(dateStr);
+  document.getElementById('calWeek').innerHTML = Array.from({length:7},(_,i)=>{
+    const d = new Date(startOfWeek); d.setDate(startOfWeek.getDate()+i);
+    const ds = localDateStr(d); // BUG 2 FIX: use local date
+    const isToday = ds === todayStr;
+    const hasr = recordDates.has(ds);
     const isPast = d < today && !isToday;
-    let dotClass = 'dot-grey';
-    if (hasRecord) dotClass = 'dot-green';
-    else if (isPast) dotClass = 'dot-yellow';
-    calHTML += `<div class="cal-day">
-      <div class="cal-day-label">${days[i]}</div>
-      <div class="cal-dot ${dotClass} ${isToday?'dot-today':''}">${d.getDate()}</div>
-    </div>`;
-  }
-  document.getElementById('calWeek').innerHTML = calHTML;
+    const cls = hasr?'dot-green':isPast?'dot-yellow':'dot-grey';
+    return `<div class="cal-day"><div class="cal-day-label">${days[i]}</div><div class="cal-dot ${cls} ${isToday?'dot-today':''}">${d.getDate()}</div></div>`;
+  }).join('');
 
-  // Filter bar — build week options
-  const weekGroups = new Set(records.map(r => getWeekIdxOf(records, r.date)));
-  let filterHTML = `<button class="filter-btn ${activeFilter==='all'?'active':''}" onclick="setFilter('all')">Todos</button>`;
-  weekGroups.forEach(w => {
-    filterHTML += `<button class="filter-btn ${activeFilter===String(w)?'active':''}" onclick="setFilter('${w}')">Sem. ${w+1}</button>`;
-  });
-  document.getElementById('filterBar').innerHTML = filterHTML;
+  // Filter bar
+  const weekGroups = [...new Set(records.map(r=>getWeekIdxOf(records,r.date)))].sort();
+  document.getElementById('filterBar').innerHTML =
+    `<button class="filter-btn ${activeFilter==='all'?'active':''}" onclick="setFilter('all')">Todos</button>` +
+    weekGroups.map(w=>`<button class="filter-btn ${activeFilter===String(w)?'active':''}" onclick="setFilter('${w}')">Sem. ${w+1}</button>`).join('');
 
-  // History list with filter
+  // History
   let filtered = [...records].sort((a,b)=>b.date.localeCompare(a.date));
-  if (activeFilter !== 'all') {
-    const wIdx = parseInt(activeFilter);
-    filtered = filtered.filter(r => getWeekIdxOf(records, r.date) === wIdx);
+  if (activeFilter!=='all') {
+    const wi = parseInt(activeFilter);
+    filtered = filtered.filter(r=>getWeekIdxOf(records,r.date)===wi);
   }
-  let histHTML = '';
-  if (filtered.length === 0) {
-    histHTML = '<div class="history-item"><span style="color:var(--text-light);font-size:13px">Nenhum registro encontrado.</span></div>';
-  }
-  filtered.forEach(r => {
-    const ctrG = r.views > 0 ? ((r.cliques/r.views)*100).toFixed(2) : '0.00';
-    const byLabel = r.autor ? ` · ${r.autor}` : '';
-    histHTML += `<div class="history-item">
-      <div style="min-width:0;flex:1">
-        <div class="history-date">${fmtDate(r.date)}</div>
-        <div class="history-stats">${r.views.toLocaleString('pt-BR')} views · ${ctrG}% CTR · ${r.videos} vídeos${byLabel}</div>
-      </div>
-      <div class="history-revenue">R$${r.receita.toFixed(2).replace('.',',')}</div>
-      <div class="history-actions">
-        <button class="hist-btn" onclick="editRecord('${r.date}')">✏</button>
-        <button class="hist-btn del" onclick="deleteRecord('${r.date}')">✕</button>
-      </div>
-    </div>`;
-  });
-  document.getElementById('historyList').innerHTML = histHTML;
+  document.getElementById('historyList').innerHTML = filtered.length===0
+    ? '<div class="history-item"><span style="color:var(--text-light);font-size:13px">Nenhum registro encontrado.</span></div>'
+    : filtered.map(r => {
+        const ctrG = r.views>0 ? ((r.cliques/r.views)*100).toFixed(2) : '0.00';
+        const by = r.autor ? ` · ${r.autor}` : '';
+        return `<div class="history-item">
+          <div style="min-width:0;flex:1">
+            <div class="history-date">${fmtDate(r.date)}</div>
+            <div class="history-stats">${r.views.toLocaleString('pt-BR')} views · ${ctrG}% CTR · ${r.videos} vídeos${by}</div>
+          </div>
+          <div class="history-revenue">R$${r.receita.toFixed(2).replace('.',',')}</div>
+          <div class="history-actions">
+            <button class="hist-btn" onclick="editRecord('${r.date}')">✏</button>
+            <button class="hist-btn del" onclick="deleteRecord('${r.date}')">✕</button>
+          </div>
+        </div>`;
+      }).join('');
 }
 
-// =================== PROJEÇÃO ===================
-function renderProjection(weekRecords, weekCfg, metaSem, totalViews) {
-  const el = document.getElementById('projCard');
-  if (weekRecords.length === 0) {
-    el.innerHTML = `<div class="proj-card"><span class="proj-icon">📊</span><div class="proj-text">Registre pelo menos um dia para ver a projeção.</div></div>`;
+// ============================================================
+// COMPARATIVO ENTRE SEMANAS
+// ============================================================
+function renderComparativo(records, WEEKS) {
+  const weekGroups = Array.from({length:4},(_,i)=>i).map(i=>({
+    idx: i,
+    recs: getThisWeekRecords(records, i)
+  })).filter(g=>g.recs.length>0);
+
+  if (weekGroups.length === 0) {
+    document.getElementById('compTable').innerHTML = '<tr><td colspan="5" style="padding:16px;color:var(--text-light);font-size:13px">Nenhum dado para comparar ainda.</td></tr>';
+    if (compChart) { compChart.destroy(); compChart = null; }
     return;
   }
-  const avgViews = totalViews / weekRecords.length;
-  const daysLeft = 7 - weekRecords.length;
-  const projected = totalViews + avgViews * daysLeft;
-  const projPct = Math.round((projected / metaSem) * 100);
-  const onTrack = projected >= metaSem;
-  const avgRec = weekRecords.reduce((s,r)=>s+r.receita,0) / weekRecords.length;
-  const projRec = weekRecords.reduce((s,r)=>s+r.receita,0) + avgRec * daysLeft;
 
-  el.innerHTML = `<div class="proj-card ${onTrack?'proj-ok':'proj-alert'}">
-    <span class="proj-icon">${onTrack?'📈':'⚠'}</span>
-    <div class="proj-text">
-      ${onTrack
-        ? `<strong>No caminho certo.</strong> Projeção de <strong>${Math.round(projected).toLocaleString('pt-BR')} views</strong> (${projPct}% da meta) e <strong>R$${projRec.toFixed(2).replace('.',',')}</strong> ao fim da semana.`
-        : `<strong>Abaixo do esperado.</strong> Projeção de <strong>${Math.round(projected).toLocaleString('pt-BR')} views</strong> (${projPct}% da meta). Precisa de ~<strong>${Math.ceil((metaSem-totalViews)/Math.max(daysLeft,1)).toLocaleString('pt-BR')} views/dia</strong> para atingir a meta.`
+  const labels = weekGroups.map(g=>`Semana ${g.idx+1}`);
+  const viewsData = weekGroups.map(g=>g.recs.reduce((s,r)=>s+r.views,0));
+  const receitaData = weekGroups.map(g=>g.recs.reduce((s,r)=>s+r.receita,0));
+  const ctrData = weekGroups.map(g=>{
+    const total = g.recs.reduce((s,r)=>s+(r.views>0?r.cliques/r.views*100:0),0);
+    return +(total/g.recs.length).toFixed(2);
+  });
+  const currentWeek = getCurrentWeek(records);
+
+  if (compChart) compChart.destroy();
+  compChart = new Chart(document.getElementById('chartComp').getContext('2d'), {
+    data: { labels, datasets: [
+      { type:'bar', label:'Views totais', data:viewsData, backgroundColor: weekGroups.map(g=>g.idx===currentWeek?'rgba(26,122,60,0.7)':'rgba(26,26,24,0.15)'), borderColor: weekGroups.map(g=>g.idx===currentWeek?'#1a7a3c':'#1a1a18'), borderWidth:1, yAxisID:'y', borderRadius:4 },
+      { type:'line', label:'Receita (R$)', data:receitaData, borderColor:'#a01820', backgroundColor:'transparent', borderWidth:2, pointRadius:4, pointBackgroundColor:'#a01820', tension:0.2, yAxisID:'y1' }
+    ]},
+    options: {
+      responsive:true, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{ labels:{ font:{family:"'DM Sans'",size:11}, boxWidth:12, usePointStyle:true } } },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{family:"'DM Sans'",size:11}} },
+        y:{ position:'left', grid:{color:'#e4e4e0'}, ticks:{font:{family:"'DM Mono'",size:10},maxTicksLimit:5} },
+        y1:{ position:'right', grid:{drawOnChartArea:false}, ticks:{font:{family:"'DM Mono'",size:10},maxTicksLimit:5, callback:v=>'R$'+v.toFixed(0)} }
       }
-    </div>
-  </div>`;
+    }
+  });
+
+  // Table
+  document.getElementById('compTable').innerHTML = `
+    <thead><tr>
+      <th>Semana</th><th>Dias reg.</th><th>Views totais</th><th>Receita total</th><th>CTR médio</th>
+    </tr></thead>
+    <tbody>
+      ${weekGroups.map((g,i)=>`
+        <tr class="${g.idx===currentWeek?'current-week':''}">
+          <td>Semana ${g.idx+1}${g.idx===currentWeek?' ★':''}</td>
+          <td>${g.recs.length}</td>
+          <td>${viewsData[i].toLocaleString('pt-BR')}</td>
+          <td>R$${receitaData[i].toFixed(2).replace('.',',')}</td>
+          <td>${ctrData[i]}%</td>
+        </tr>`).join('')}
+    </tbody>`;
 }
 
-// =================== FILTER ===================
-function setFilter(val) {
-  activeFilter = String(val);
-  render();
+// ============================================================
+// PROJEÇÃO
+// ============================================================
+function renderProjection(weekRecords, weekCfg, metaSem, totalViews) {
+  const el = document.getElementById('projCard');
+  if (weekRecords.length===0) {
+    el.innerHTML = '<div class="proj-card"><span class="proj-icon">📊</span><div class="proj-text">Registre pelo menos um dia para ver a projeção.</div></div>';
+    return;
+  }
+  const avg = totalViews/weekRecords.length;
+  const daysLeft = 7-weekRecords.length;
+  const proj = totalViews + avg*daysLeft;
+  const projPct = Math.round((proj/metaSem)*100);
+  const ok = proj>=metaSem;
+  const avgRec = weekRecords.reduce((s,r)=>s+r.receita,0)/weekRecords.length;
+  const projRec = weekRecords.reduce((s,r)=>s+r.receita,0)+avgRec*daysLeft;
+  el.innerHTML = `<div class="proj-card ${ok?'proj-ok':'proj-alert'}">
+    <span class="proj-icon">${ok?'📈':'⚠'}</span>
+    <div class="proj-text">${ok
+      ? `<strong>No caminho certo.</strong> Projeção de <strong>${Math.round(proj).toLocaleString('pt-BR')} views</strong> (${projPct}% da meta) e <strong>R$${projRec.toFixed(2).replace('.',',')}</strong> ao fim da semana.`
+      : `<strong>Abaixo do esperado.</strong> Projeção de <strong>${Math.round(proj).toLocaleString('pt-BR')} views</strong> (${projPct}% da meta). Precisa de ~<strong>${Math.ceil((metaSem-totalViews)/Math.max(daysLeft,1)).toLocaleString('pt-BR')} views/dia</strong> para atingir a meta.`
+    }</div></div>`;
 }
 
-// =================== FORM ===================
+// ============================================================
+// FORM
+// ============================================================
 function setTodayDate() {
-  document.getElementById('f-data').value = new Date().toISOString().slice(0,10);
+  // BUG 2 FIX: use localDateStr() instead of toISOString()
+  document.getElementById('f-data').value = localDateStr();
   const saved = localStorage.getItem('darkline_autor');
   if (saved) document.getElementById('f-autor').value = saved;
 }
 
+// BUG 4 FIX: checkExistingRecord now correctly warns when editing a record
+// and changing the date to one that already exists (different from the one being edited)
 function checkExistingRecord() {
-  if (editingDate) return; // em modo edição, não mostrar aviso
   const date = document.getElementById('f-data').value;
-  const records = getData();
-  const existing = records.find(r => r.date === date);
-  const warn = document.getElementById('dirtyWarn');
+  const existing = getData().find(r => r.date === date);
+  const w = document.getElementById('dirtyWarn');
+
+  // If editing: warn only if the new date conflicts with a DIFFERENT record
+  if (editingDate) {
+    if (existing && existing.date !== editingDate) {
+      w.style.display = 'block';
+      w.textContent = `⚠ Já existe um registro para ${fmtDate(date)}. Salvar irá substituí-lo.`;
+    } else {
+      w.style.display = 'none';
+    }
+    return;
+  }
+
+  // Normal (new record) mode
   if (existing) {
-    warn.style.display = 'block';
-    warn.textContent = `⚠ Já existe um registro para ${fmtDate(date)}. Salvar irá substituí-lo.`;
+    w.style.display = 'block';
+    w.textContent = `⚠ Já existe um registro para ${fmtDate(date)}. Salvar irá substituí-lo.`;
   } else {
-    warn.style.display = 'none';
+    w.style.display = 'none';
   }
 }
 
-function setDirty() { isDirty = true; }
-
 function saveRecord() {
+  if (getReadonly()) { alert('Dashboard em modo leitura. Edições bloqueadas.'); return; }
   const date = document.getElementById('f-data').value;
-  const autor = document.getElementById('f-autor').value.trim() || 'Vitor';
-  const views = parseInt(document.getElementById('f-views').value) || 0;
-  const cliques = parseInt(document.getElementById('f-cliques').value) || 0;
-  const receita = parseFloat(document.getElementById('f-receita').value) || 0;
-  const videos = parseInt(document.getElementById('f-videos').value) || 0;
-  const ctr_casa = parseFloat(document.getElementById('f-casa').value) || 0;
-  const ctr_beleza = parseFloat(document.getElementById('f-beleza').value) || 0;
-  const ctr_util = parseFloat(document.getElementById('f-util').value) || 0;
-
   if (!date) { alert('Informe a data.'); return; }
+  const autor = document.getElementById('f-autor').value.trim() || 'Vitor';
+  const views = parseInt(document.getElementById('f-views').value)||0;
+  const cliques = parseInt(document.getElementById('f-cliques').value)||0;
+  const receita = parseFloat(document.getElementById('f-receita').value)||0;
+  const videos = parseInt(document.getElementById('f-videos').value)||0;
+
+  const nichos = getNichos();
+  const nichosData = {};
+  nichos.forEach(n => {
+    const el = document.getElementById(`f-nicho-${n.id}`);
+    nichosData[n.id] = el ? (parseFloat(el.value)||0) : 0;
+  });
 
   localStorage.setItem('darkline_autor', autor);
-
   const records = getData();
-  const idx = records.findIndex(r => r.date === date);
-  const rec = { date, autor, views, cliques, receita, videos, ctr_casa, ctr_beleza, ctr_util };
-  if (idx >= 0) records[idx] = rec; else records.push(rec);
+  const idx = records.findIndex(r=>r.date===date);
+  const isEdit = idx>=0;
+  const rec = { date, autor, views, cliques, receita, videos, nichos: nichosData };
+  if (isEdit) records[idx]=rec; else records.push(rec);
   saveData(records);
+
+  appendLog('save', `${isEdit?'Editou':'Registrou'} o dia ${fmtDate(date)} — ${views.toLocaleString('pt-BR')} views, R$${receita.toFixed(2)}`, autor);
 
   isDirty = false;
   editingDate = null;
   document.getElementById('editModeBanner').style.display = 'none';
   document.getElementById('submitBtn').textContent = 'Salvar registro';
   document.getElementById('dirtyWarn').style.display = 'none';
-
   const msg = document.getElementById('successMsg');
   msg.style.display = 'block';
-  setTimeout(()=>{ msg.style.display='none'; }, 3000);
+  setTimeout(()=>msg.style.display='none', 3000);
 
+  // BUG 5 FIX: re-render fields and reattach dirty listeners after save
+  renderNichoCTRFields(null);
+  setTodayDate();
   render();
+  renderLog();
 }
 
-// =================== EDIT / DELETE ===================
+// ============================================================
+// EDIT / DELETE
+// ============================================================
 function editRecord(date) {
-  const records = getData();
-  const rec = records.find(r => r.date === date);
+  if (getReadonly()) { alert('Dashboard em modo leitura.'); return; }
+  const rec = getData().find(r=>r.date===date);
   if (!rec) return;
-
   editingDate = date;
-  showPage('registrar');
-
+  showPage('registrar', true);
   document.getElementById('f-data').value = rec.date;
-  document.getElementById('f-autor').value = rec.autor || '';
+  document.getElementById('f-autor').value = rec.autor||'';
   document.getElementById('f-views').value = rec.views;
   document.getElementById('f-cliques').value = rec.cliques;
   document.getElementById('f-receita').value = rec.receita;
   document.getElementById('f-videos').value = rec.videos;
-  document.getElementById('f-casa').value = rec.ctr_casa;
-  document.getElementById('f-beleza').value = rec.ctr_beleza;
-  document.getElementById('f-util').value = rec.ctr_util;
-
+  renderNichoCTRFields(rec);
   document.getElementById('editModeBanner').style.display = 'block';
   document.getElementById('editDateLabel').textContent = fmtDate(date);
   document.getElementById('submitBtn').textContent = 'Salvar alterações';
@@ -1091,78 +1023,79 @@ function editRecord(date) {
 }
 
 function cancelEdit() {
-  editingDate = null;
-  isDirty = false;
+  editingDate = null; isDirty = false;
   document.getElementById('editModeBanner').style.display = 'none';
   document.getElementById('submitBtn').textContent = 'Salvar registro';
-  clearForm();
+  renderNichoCTRFields(null);
   setTodayDate();
 }
 
 function deleteRecord(date) {
-  if (!confirm(`Apagar o registro de ${fmtDate(date)}? Esta ação não pode ser desfeita.`)) return;
-  const records = getData().filter(r => r.date !== date);
-  saveData(records);
+  if (getReadonly()) { alert('Dashboard em modo leitura.'); return; }
+  if (!confirm(`Apagar o registro de ${fmtDate(date)}?`)) return;
+  const autor = localStorage.getItem('darkline_autor')||'Desconhecido';
+  appendLog('delete', `Apagou o registro de ${fmtDate(date)}`, autor);
+  saveData(getData().filter(r=>r.date!==date));
   render();
+  renderLog();
 }
 
-function clearForm() {
-  ['f-views','f-cliques','f-receita','f-videos','f-casa','f-beleza','f-util'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('dirtyWarn').style.display = 'none';
-}
+// ============================================================
+// FILTER
+// ============================================================
+function setFilter(val) { activeFilter = String(val); render(); }
 
-// =================== EXPORT ===================
+// ============================================================
+// EXPORT
+// ============================================================
 function exportCSV() {
   const records = getData();
   const weekIdx = getCurrentWeek(records);
-  const weekRecords = getThisWeekRecords(records, weekIdx);
-  if (weekRecords.length === 0) { alert('Nenhum dado para exportar.'); return; }
-  downloadCSV(weekRecords, `darkline_semana${weekIdx+1}.csv`);
+  const wr = getThisWeekRecords(records, weekIdx);
+  if (!wr.length) { alert('Nenhum dado para exportar.'); return; }
+  downloadCSV(wr, `darkline_semana${weekIdx+1}.csv`);
 }
-
 function exportAllCSV() {
   const records = getData();
-  if (records.length === 0) { alert('Nenhum dado para exportar.'); return; }
-  const sorted = [...records].sort((a,b)=>a.date.localeCompare(b.date));
-  downloadCSV(sorted, 'darkline_completo.csv');
+  if (!records.length) { alert('Nenhum dado.'); return; }
+  downloadCSV([...records].sort((a,b)=>a.date.localeCompare(b.date)), 'darkline_completo.csv');
 }
-
 function downloadCSV(records, filename) {
-  const header = 'Data,Autor,Views,Cliques,CTR Geral (%),Receita (R$),Vídeos,CTR Casa (%),CTR Beleza (%),CTR Utilidades (%)';
-  const rows = records.map(r => {
-    const ctr = r.views > 0 ? ((r.cliques/r.views)*100).toFixed(2) : '0.00';
-    return [r.date, r.autor||'', r.views, r.cliques, ctr, r.receita.toFixed(2), r.videos, r.ctr_casa, r.ctr_beleza, r.ctr_util].join(',');
+  const nichos = getNichos();
+  const header = ['Data','Autor','Views','Cliques','CTR Geral (%)','Receita (R$)','Vídeos',...nichos.map(n=>n.name+' CTR (%)')].join(',');
+  const rows = records.map(r=>{
+    const ctr = r.views>0 ? ((r.cliques/r.views)*100).toFixed(2) : '0.00';
+    const nichoCols = nichos.map(n=>(r.nichos&&r.nichos[n.id]!=null?r.nichos[n.id]:0));
+    return [r.date,r.autor||'',r.views,r.cliques,ctr,r.receita.toFixed(2),r.videos,...nichoCols].join(',');
   });
-  const csv = [header, ...rows].join('\n');
-  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const blob = new Blob([[header,...rows].join('\n')], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
+  a.href=url; a.download=filename; a.click();
   URL.revokeObjectURL(url);
 }
 
-// =================== ADM ===================
+// ============================================================
+// ADM
+// ============================================================
 function openAdm() {
   document.getElementById('admOverlay').classList.add('open');
   document.getElementById('admPass').value = '';
   document.getElementById('admErr').style.display = 'none';
   document.getElementById('admLoginPanel').style.display = 'block';
   document.getElementById('admPanel').classList.remove('open');
+  document.getElementById('metasEditorPanel').style.display = 'none';
+  document.getElementById('nichosEditorPanel').style.display = 'none';
+  updateReadonlyBtn();
   setTimeout(()=>document.getElementById('admPass').focus(), 100);
 }
-
-function closeAdm() {
-  document.getElementById('admOverlay').classList.remove('open');
-}
-
+function closeAdm() { document.getElementById('admOverlay').classList.remove('open'); }
 function checkAdmPass() {
-  const val = document.getElementById('admPass').value;
-  if (val === ADM_PASS) {
+  if (document.getElementById('admPass').value === ADM_PASS) {
     document.getElementById('admLoginPanel').style.display = 'none';
     document.getElementById('admPanel').classList.add('open');
     document.getElementById('admErr').style.display = 'none';
+    updateReadonlyBtn();
   } else {
     document.getElementById('admErr').style.display = 'block';
     document.getElementById('admPass').value = '';
@@ -1170,97 +1103,250 @@ function checkAdmPass() {
   }
 }
 
-function admExportJSON() {
+// ============================================================
+// READONLY
+// ============================================================
+function toggleReadonly() {
+  const now = !getReadonly();
+  saveReadonly(now);
+  applyReadonly();
+  updateReadonlyBtn();
+  const autor = localStorage.getItem('darkline_autor')||'ADM';
+  appendLog('readonly', now ? 'Ativou modo somente leitura' : 'Desativou modo somente leitura', autor);
+  renderLog();
+}
+function applyReadonly() {
+  if (getReadonly()) document.body.classList.add('readonly');
+  else document.body.classList.remove('readonly');
+}
+function updateReadonlyBtn() {
+  const btn = document.getElementById('readonlyBtn');
+  if (!btn) return;
+  if (getReadonly()) {
+    btn.textContent = '✏ Desativar modo somente leitura';
+    btn.classList.add('active-toggle');
+  } else {
+    btn.textContent = '👁 Ativar modo somente leitura';
+    btn.classList.remove('active-toggle');
+  }
+}
+
+// ============================================================
+// METAS EDITOR
+// ============================================================
+function openMetasEditor() {
+  document.getElementById('admPanel').classList.remove('open');
+  document.getElementById('metasEditorPanel').style.display = 'block';
+  const weeks = getWeeks();
+  document.getElementById('metasRows').innerHTML = weeks.map((w,i)=>`
+    <div class="meta-row">
+      <div class="meta-row-label">Semana ${i+1}</div>
+      <input class="meta-input" type="number" id="meta-views-${i}" value="${w.viewsMeta}" placeholder="views">
+      <input class="meta-input" type="number" id="meta-min-${i}" value="${w.receitaMin}" step="0.01" placeholder="mín R$">
+      <input class="meta-input" type="number" id="meta-max-${i}" value="${w.receitaMax}" step="0.01" placeholder="máx R$">
+    </div>`).join('');
+}
+function closeMetasEditor() {
+  document.getElementById('metasEditorPanel').style.display = 'none';
+  document.getElementById('admPanel').classList.add('open');
+}
+function saveMetas() {
+  const weeks = getWeeks().map((w,i)=>({
+    n: i+1,
+    viewsMeta: parseInt(document.getElementById(`meta-views-${i}`).value)||w.viewsMeta,
+    receitaMin: parseFloat(document.getElementById(`meta-min-${i}`).value)||w.receitaMin,
+    receitaMax: parseFloat(document.getElementById(`meta-max-${i}`).value)||w.receitaMax,
+  }));
+  saveWeeks(weeks);
+  const autor = localStorage.getItem('darkline_autor')||'ADM';
+  appendLog('metas', 'Atualizou as metas por semana', autor);
+  renderLog();
+  closeMetasEditor();
+  render();
+  alert('✓ Metas salvas com sucesso.');
+}
+
+// ============================================================
+// NICHOS EDITOR
+// ============================================================
+let tempNichos = [];
+function openNichosEditor() {
+  document.getElementById('admPanel').classList.remove('open');
+  document.getElementById('nichosEditorPanel').style.display = 'block';
+  tempNichos = JSON.parse(JSON.stringify(getNichos()));
+  renderNichosEditorRows();
+}
+function closeNichosEditor() {
+  document.getElementById('nichosEditorPanel').style.display = 'none';
+  document.getElementById('admPanel').classList.add('open');
+}
+function renderNichosEditorRows() {
+  document.getElementById('nichosRows').innerHTML = tempNichos.map((n,i)=>`
+    <div class="nicho-edit-row" id="nicho-editor-row-${i}">
+      <input class="nicho-edit-icon" type="text" value="${n.icon}" maxlength="2" id="ne-icon-${i}" placeholder="🏠">
+      <input class="nicho-edit-name" type="text" value="${n.name}" id="ne-name-${i}" placeholder="Nome do nicho">
+      ${tempNichos.length>1?`<button class="nicho-del-btn" onclick="removeNichoRow(${i})" title="Remover">✕</button>`:''}
+    </div>`).join('');
+  document.getElementById('nichoWarn').style.display = 'none';
+}
+function addNichoRow() {
+  if (tempNichos.length >= 6) {
+    const w = document.getElementById('nichoWarn');
+    w.style.display='block'; w.textContent='Máximo de 6 nichos atingido.'; return;
+  }
+  const newId = 'nicho_' + Math.random().toString(36).slice(2,8);
+  tempNichos.push({ id: newId, icon:'⭐', name:'Novo nicho' });
+  renderNichosEditorRows();
+}
+function removeNichoRow(i) {
+  if (tempNichos.length<=1) return;
+  const n = tempNichos[i];
   const records = getData();
-  const blob = new Blob([JSON.stringify({ version:2, exported: new Date().toISOString(), records }, null, 2)], { type:'application/json' });
+  const hasData = records.some(r=>r.nichos&&r.nichos[n.id]!=null&&r.nichos[n.id]>0);
+  if (hasData && !confirm(`O nicho "${n.name}" tem dados registrados. Remover vai ocultá-lo do formulário, mas o histórico é preservado. Continuar?`)) return;
+  tempNichos.splice(i,1);
+  renderNichosEditorRows();
+}
+function saveNichos() {
+  const updated = tempNichos.map((n,i)=>({
+    id: n.id,
+    icon: (document.getElementById(`ne-icon-${i}`).value.trim()||'•').slice(0,2),
+    name: document.getElementById(`ne-name-${i}`).value.trim()||`Nicho ${i+1}`
+  }));
+  if (updated.length===0) { alert('Precisa ter ao menos 1 nicho.'); return; }
+  saveNichosData(updated);
+  const autor = localStorage.getItem('darkline_autor')||'ADM';
+  appendLog('nichos', `Atualizou lista de nichos: ${updated.map(n=>n.name).join(', ')}`, autor);
+  renderLog();
+  renderNichoCTRFields(null);
+  render();
+  closeNichosEditor();
+  alert('✓ Nichos salvos com sucesso.');
+}
+
+// ============================================================
+// BACKUP / RESTORE
+// ============================================================
+function admExportJSON() {
+  const payload = {
+    version: 3,
+    exported: new Date().toISOString(),
+    records: getData(),
+    nichos: getNichos(),
+    weeks: getWeeks(),
+    log: getLog()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `darkline_backup_${new Date().toISOString().slice(0,10)}.json`; a.click();
+  a.href=url; a.download=`darkline_backup_${localDateStr()}.json`; a.click(); // BUG 2 FIX: use localDateStr
   URL.revokeObjectURL(url);
+  appendLog('import', 'Exportou backup completo (JSON)');
+  renderLog();
 }
-
-function admImportJSON() {
-  document.getElementById('admImportFile').click();
-}
-
+function admImportJSON() { document.getElementById('admImportFile').click(); }
 function admDoImport(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     try {
       const parsed = JSON.parse(e.target.result);
-      const recs = parsed.records || parsed; // suporta JSON direto ou wrapper
-      if (!Array.isArray(recs)) throw new Error('Formato inválido');
-      if (!confirm(`Importar ${recs.length} registros? Os dados atuais serão SUBSTITUÍDOS.`)) return;
+      const recs = parsed.records || parsed;
+      if (!Array.isArray(recs)) throw new Error('Inválido');
+      if (!confirm(`Importar ${recs.length} registros? Os dados atuais serão substituídos.`)) return;
       saveData(recs);
-      render();
-      closeAdm();
-      alert(`✓ ${recs.length} registros importados com sucesso.`);
-    } catch(err) {
-      alert('Erro ao importar: arquivo JSON inválido.');
-    }
+      if (parsed.nichos) saveNichosData(parsed.nichos);
+      if (parsed.weeks) saveWeeks(parsed.weeks);
+      migrateRecords();
+      appendLog('import', `Importou backup com ${recs.length} registros`);
+      render(); renderLog(); closeAdm();
+      alert(`✓ ${recs.length} registros importados.`);
+    } catch { alert('Arquivo JSON inválido.'); }
   };
   reader.readAsText(file);
   input.value = '';
 }
 
+// BUG 6 FIX: appendLog BEFORE removing localStorage items
+// Previously the log entry was written and then immediately wiped by removeItem
 function admResetAll() {
-  if (!confirm('Apagar TODOS os registros permanentemente? Esta ação não tem volta.')) return;
-  if (!confirm('Tem certeza absoluta? Todos os dados serão perdidos.')) return;
+  if (!confirm('Apagar TODOS os registros permanentemente?')) return;
+  if (!confirm('Tem certeza absoluta? Dados e log serão perdidos.')) return;
+  // Write the log entry first, THEN wipe data
+  appendLog('reset', 'Apagou todos os registros');
   localStorage.removeItem('darkline_records');
-  render();
-  closeAdm();
-  alert('✓ Todos os registros foram apagados.');
+  // Log is intentionally kept so the reset action is visible in the log
+  render(); renderLog(); closeAdm();
+  alert('✓ Todos os registros apagados.');
 }
 
-// =================== DARK MODE ===================
+// ============================================================
+// DARK MODE
+// ============================================================
 function toggleDark() {
-  const isDark = document.body.classList.toggle('dark');
-  saveDarkMode(isDark);
-  document.getElementById('darkBtn').textContent = isDark ? '☀️' : '🌙';
+  const d = document.body.classList.toggle('dark');
+  saveDarkMode(d);
+  document.getElementById('darkBtn').textContent = d ? '☀️' : '🌙';
 }
-
 function applyDarkMode() {
-  if (getDarkMode()) {
-    document.body.classList.add('dark');
-    document.getElementById('darkBtn').textContent = '☀️';
-  }
+  if (getDarkMode()) { document.body.classList.add('dark'); document.getElementById('darkBtn').textContent='☀️'; }
 }
 
-// =================== NAV ===================
-function showPage(page) {
-  // Dirty check when leaving registrar
-  if (page !== 'registrar' && isDirty) {
-    const warn = document.getElementById('dirtyWarn');
-    warn.style.display = 'block';
-    warn.textContent = '⚠ Você tem campos preenchidos. Navegue de volta e salve ou descarte.';
-    setTimeout(()=>{ warn.style.display='none'; }, 4000);
+// ============================================================
+// NAV
+// BUG 7 FIX: showPage resets editingDate when leaving the 'registrar' tab
+// so the edit state doesn't silently persist across tab switches.
+// ============================================================
+function showPage(page, force) {
+  if (page !== 'registrar' && isDirty && !force) {
+    const w = document.getElementById('dirtyWarn');
+    w.style.display='block';
+    w.textContent='⚠ Você tem campos preenchidos. Salve antes de sair.';
+    setTimeout(()=>w.style.display='none', 4000);
     return;
   }
 
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  // BUG 7 FIX: when navigating away from registrar without saving, clear edit state
+  if (page !== 'registrar' && editingDate) {
+    editingDate = null;
+    isDirty = false;
+    document.getElementById('editModeBanner').style.display = 'none';
+    document.getElementById('submitBtn').textContent = 'Salvar registro';
+  }
+
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  const map = { painel: 'Painel', registrar: 'Registrar', adm: 'ADM' };
-  document.querySelectorAll('.nav-tab').forEach(t => {
-    if (t.textContent === map[page]) t.classList.add('active');
-  });
-  if (page === 'painel') render();
+  const map = {painel:'Painel',registrar:'Registrar',adm:'ADM'};
+  document.querySelectorAll('.nav-tab').forEach(t=>{ if(t.textContent===map[page]) t.classList.add('active'); });
+  if (page==='painel') render();
+  if (page==='adm') renderLog();
 }
 
-// Track dirty state on all form inputs
-document.addEventListener('DOMContentLoaded', () => {
-  ['f-views','f-cliques','f-receita','f-videos','f-casa','f-beleza','f-util'].forEach(id => {
-    document.getElementById(id).addEventListener('input', () => { isDirty = true; });
-  });
-});
-
-// =================== INIT ===================
+// ============================================================
+// INIT
+// ============================================================
+migrateRecords();
 seedDemo();
 applyDarkMode();
+applyReadonly();
 setTodayDate();
+renderNichoCTRFields(null);
 render();
+renderLog();
+
+// BUG 1 FIX: attach dirty tracking immediately (inline, not inside DOMContentLoaded)
+// since the script runs after the DOM is already parsed (bottom of body).
+// Named function `markDirty` is used so removeEventListener works correctly.
+['f-views','f-cliques','f-receita','f-videos'].forEach(id=>{
+  const el = document.getElementById(id);
+  if (el) {
+    el.removeEventListener('input', markDirty);
+    el.addEventListener('input', markDirty);
+  }
+});
+// Nicho fields are handled by attachNichoDirtyListeners() inside renderNichoCTRFields()
 </script>
 </body>
 </html>
